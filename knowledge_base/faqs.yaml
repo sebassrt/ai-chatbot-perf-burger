@@ -1,0 +1,80 @@
+faqs:
+  - question: "What are your delivery hours?"
+    answer: "We deliver Monday through Sunday from 11:00 AM to 10:00 PM. Last orders are accepted at 9:30 PM."
+    category: "delivery"
+
+  - question: "How long does delivery take?"
+    answer: "Typical delivery time is 25-35 minutes, depending on your location and current order volume. During peak hours (12-2 PM and 6-8 PM), it may take up to 45 minutes."
+    category: "delivery"
+
+  - question: "What is your delivery radius?"
+    answer: "We deliver within a 5-mile radius of our restaurant. You can check if we deliver to your area by entering your address on our website or app."
+    category: "delivery"
+
+  - question: "Do you offer contactless delivery?"
+    answer: "Yes! We offer contactless delivery. Just select this option when placing your order, and our driver will leave your food at your door and notify you via text."
+    category: "delivery"
+
+  - question: "Can I track my order?"
+    answer: "Absolutely! Once you place an order, you'll receive a tracking link via text or email. You can also ask me for your order status by providing your order ID."
+    category: "orders"
+
+  - question: "What if my order is incorrect or missing items?"
+    answer: "We sincerely apologize if there's an issue with your order. Please contact us immediately through the chat or call our support line. We'll either send a replacement or provide a full refund."
+    category: "orders"
+
+  - question: "Can I modify my order after placing it?"
+    answer: "Order modifications are possible within 5 minutes of placing your order, and only if the kitchen hasn't started preparing it. Please contact us immediately if you need changes."
+    category: "orders"
+
+  - question: "Do you accommodate food allergies?"
+    answer: "Yes, we take food allergies seriously. Our menu indicates common allergens for each item. Please inform us of any allergies when ordering, and we'll take extra precautions in preparation."
+    category: "menu"
+
+  - question: "Are there vegetarian and vegan options?"
+    answer: "Yes! We offer the Veggie Supreme burger which is vegetarian and can be made vegan by substituting the aioli. We also have several vegan-friendly sides and drinks."
+    category: "menu"
+
+  - question: "Can I customize my burger?"
+    answer: "Absolutely! All our burgers are customizable. You can add or remove ingredients, change the bun type, or adjust spice levels. Additional charges may apply for premium toppings."
+    category: "menu"
+
+  - question: "Do you offer gluten-free options?"
+    answer: "We offer gluten-free buns for an additional $1.50. Many of our sides like sweet potato fries are naturally gluten-free. Please note that our kitchen is not certified gluten-free."
+    category: "menu"
+
+  - question: "What payment methods do you accept?"
+    answer: "We accept all major credit cards (Visa, MasterCard, American Express), debit cards, PayPal, Apple Pay, Google Pay, and cash for pickup orders."
+    category: "payment"
+
+  - question: "Do you offer group orders or catering?"
+    answer: "Yes! We offer catering services for groups of 10 or more. Please call us at least 24 hours in advance to discuss your catering needs and pricing."
+    category: "catering"
+
+  - question: "Is there a minimum order for delivery?"
+    answer: "Yes, we have a $15 minimum order requirement for delivery. Pickup orders have no minimum."
+    category: "delivery"
+
+  - question: "Do you have loyalty rewards?"
+    answer: "Yes! Join our PerfRewards program through our app. Earn 1 point for every $1 spent, and get a free burger after 100 points. Plus, you'll get exclusive offers and early access to new menu items."
+    category: "rewards"
+
+  - question: "What if I'm not satisfied with my order?"
+    answer: "Your satisfaction is our priority! If you're not completely happy with your order, please let us know within 24 hours. We'll make it right with a replacement, credit, or refund."
+    category: "satisfaction"
+
+  - question: "Do you deliver during bad weather?"
+    answer: "We strive to maintain service during inclement weather, but driver safety is our priority. During severe weather conditions, we may temporarily suspend delivery. We'll notify customers of any service disruptions."
+    category: "delivery"
+
+  - question: "Can I schedule my delivery for a specific time?"
+    answer: "Currently, we don't offer scheduled delivery, but you can place an order for immediate preparation and delivery. Typical delivery time estimates are provided at checkout."
+    category: "delivery"
+
+  - question: "Do you use fresh ingredients?"
+    answer: "Yes! We pride ourselves on using fresh, high-quality ingredients. Our beef is never frozen, vegetables are delivered fresh daily, and our buns are baked locally."
+    category: "ingredients"
+
+  - question: "What makes PerfBurger special?"
+    answer: "We're committed to perfection in every aspect - from our grass-fed beef and fresh ingredients to our exceptional customer service. Every burger is made to order with care and attention to detail."
+    category: "about"

@@ -1,0 +1,15 @@
+{
+  "refund_policy": "We offer full refunds for orders that are significantly delayed (over 60 minutes), incorrect, or if customers are unsatisfied with food quality. Refunds are processed within 3-5 business days to the original payment method.",
+  
+  "cancellation_policy": "Orders can be cancelled within 5 minutes of placement without charge. After this window, cancellation may not be possible if kitchen preparation has begun. Contact us immediately for cancellation requests.",
+  
+  "delivery_policy": "We deliver within a 5-mile radius with a $15 minimum order. Delivery fee is $2.99. We aim for 25-35 minute delivery times but cannot guarantee exact timing due to traffic and weather conditions.",
+  
+  "allergen_policy": "While we take precautions to prevent cross-contamination, our kitchen handles multiple allergens. Customers with severe allergies should inform us when ordering. We cannot guarantee allergen-free preparation.",
+  
+  "quality_guarantee": "Every PerfBurger meal is made to order with fresh ingredients. If you're not completely satisfied with your order, contact us within 24 hours for a replacement, credit, or refund.",
+  
+  "privacy_policy": "We protect your personal information and use it only for order processing, delivery, and customer service. We do not sell or share your data with third parties except as required for payment processing and delivery.",
+  
+  "contact_information": "Customer Service: (555) 123-PERF | Email: support@perfburger.com | Live Chat: Available daily 11 AM - 10 PM | Address: 123 Burger Lane, Foodie City, FC 12345"
+}

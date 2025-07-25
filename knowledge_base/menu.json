@@ -1,0 +1,201 @@
+{
+  "burgers": [
+    {
+      "name": "Classic PerfBurger",
+      "price": "12.99",
+      "description": "Our signature burger with premium grass-fed beef patty, crisp lettuce, fresh tomato, red onion, and our secret PerfSauce on a toasted brioche bun",
+      "ingredients": ["grass-fed beef patty", "lettuce", "tomato", "red onion", "PerfSauce", "brioche bun"],
+      "category": "signature",
+      "nutritional_info": {
+        "calories": 580,
+        "protein": "32g",
+        "carbs": "45g",
+        "fat": "28g"
+      },
+      "allergens": ["gluten", "soy"],
+      "customizable": true
+    },
+    {
+      "name": "BBQ Bacon Deluxe",
+      "price": "15.99",
+      "description": "Double beef patties with crispy bacon, caramelized onions, cheddar cheese, and smoky BBQ sauce",
+      "ingredients": ["double beef patties", "bacon", "caramelized onions", "cheddar cheese", "BBQ sauce", "brioche bun"],
+      "category": "premium",
+      "nutritional_info": {
+        "calories": 780,
+        "protein": "45g",
+        "carbs": "48g",
+        "fat": "42g"
+      },
+      "allergens": ["gluten", "dairy"],
+      "customizable": true
+    },
+    {
+      "name": "Veggie Supreme",
+      "price": "11.99",
+      "description": "House-made veggie patty with avocado, sprouts, cucumber, tomato, and herb aioli",
+      "ingredients": ["veggie patty", "avocado", "sprouts", "cucumber", "tomato", "herb aioli", "whole wheat bun"],
+      "category": "vegetarian",
+      "nutritional_info": {
+        "calories": 420,
+        "protein": "18g",
+        "carbs": "52g",
+        "fat": "16g"
+      },
+      "allergens": ["gluten"],
+      "customizable": true,
+      "dietary": ["vegetarian", "can be vegan"]
+    },
+    {
+      "name": "Spicy Jalapeño Crunch",
+      "price": "13.99",
+      "description": "Beef patty with jalapeños, pepper jack cheese, crispy onions, and spicy chipotle mayo",
+      "ingredients": ["beef patty", "jalapeños", "pepper jack cheese", "crispy onions", "chipotle mayo", "brioche bun"],
+      "category": "spicy",
+      "nutritional_info": {
+        "calories": 620,
+        "protein": "34g",
+        "carbs": "46g",
+        "fat": "32g"
+      },
+      "allergens": ["gluten", "dairy"],
+      "spice_level": "medium-hot",
+      "customizable": true
+    },
+    {
+      "name": "Mushroom Swiss Gourmet",
+      "price": "14.99",
+      "description": "Premium beef with sautéed mushrooms, Swiss cheese, caramelized onions, and truffle aioli",
+      "ingredients": ["beef patty", "sautéed mushrooms", "Swiss cheese", "caramelized onions", "truffle aioli", "brioche bun"],
+      "category": "gourmet",
+      "nutritional_info": {
+        "calories": 650,
+        "protein": "36g",
+        "carbs": "44g",
+        "fat": "35g"
+      },
+      "allergens": ["gluten", "dairy"],
+      "customizable": true
+    }
+  ],
+  "sides": [
+    {
+      "name": "Crispy French Fries",
+      "price": "4.99",
+      "description": "Golden, crispy fries seasoned with sea salt",
+      "category": "classic",
+      "nutritional_info": {
+        "calories": 320,
+        "protein": "4g",
+        "carbs": "42g",
+        "fat": "15g"
+      },
+      "allergens": [],
+      "sizes": ["regular", "large"]
+    },
+    {
+      "name": "Sweet Potato Fries",
+      "price": "5.99",
+      "description": "Crispy sweet potato fries with a hint of cinnamon",
+      "category": "premium",
+      "nutritional_info": {
+        "calories": 280,
+        "protein": "3g",
+        "carbs": "45g",
+        "fat": "12g"
+      },
+      "allergens": [],
+      "sizes": ["regular", "large"]
+    },
+    {
+      "name": "Onion Rings",
+      "price": "6.49",
+      "description": "Beer-battered onion rings served with ranch dipping sauce",
+      "category": "classic",
+      "nutritional_info": {
+        "calories": 420,
+        "protein": "6g",
+        "carbs": "38g",
+        "fat": "28g"
+      },
+      "allergens": ["gluten"],
+      "comes_with": "ranch dipping sauce"
+    },
+    {
+      "name": "Loaded Cheese Fries",
+      "price": "7.99",
+      "description": "Crispy fries topped with melted cheese, bacon bits, and green onions",
+      "category": "loaded",
+      "nutritional_info": {
+        "calories": 580,
+        "protein": "18g",
+        "carbs": "48g",
+        "fat": "36g"
+      },
+      "allergens": ["dairy"],
+      "toppings": ["melted cheese", "bacon bits", "green onions"]
+    }
+  ],
+  "drinks": [
+    {
+      "name": "Craft Root Beer Float",
+      "price": "4.99",
+      "description": "House-made root beer with vanilla ice cream",
+      "category": "specialty",
+      "allergens": ["dairy"],
+      "sizes": ["regular"]
+    },
+    {
+      "name": "Fresh Lemonade",
+      "price": "3.49",
+      "description": "Made-to-order lemonade with fresh lemons",
+      "category": "fresh",
+      "allergens": [],
+      "sizes": ["regular", "large"],
+      "flavors": ["classic", "strawberry", "mango"]
+    },
+    {
+      "name": "Milkshakes",
+      "price": "5.99",
+      "description": "Thick, creamy milkshakes made with premium ice cream",
+      "category": "dessert",
+      "allergens": ["dairy"],
+      "sizes": ["regular", "large"],
+      "flavors": ["vanilla", "chocolate", "strawberry", "cookies & cream", "salted caramel"]
+    },
+    {
+      "name": "Sodas",
+      "price": "2.99",
+      "description": "Assorted soft drinks",
+      "category": "classic",
+      "allergens": [],
+      "sizes": ["regular", "large"],
+      "options": ["Coke", "Pepsi", "Sprite", "Orange", "Diet Coke", "Diet Pepsi"]
+    },
+    {
+      "name": "Iced Tea",
+      "price": "2.99",
+      "description": "Fresh brewed iced tea",
+      "category": "classic",
+      "allergens": [],
+      "sizes": ["regular", "large"],
+      "flavors": ["unsweetened", "sweet", "peach", "raspberry"]
+    }
+  ],
+  "combos": [
+    {
+      "name": "Classic Combo",
+      "price": "16.99",
+      "description": "Any signature burger + fries + drink",
+      "includes": ["signature burger", "regular fries", "regular drink"],
+      "savings": "$2.00"
+    },
+    {
+      "name": "Deluxe Combo",
+      "price": "19.99",
+      "description": "Any premium burger + premium side + large drink + dessert",
+      "includes": ["premium burger", "premium side", "large drink", "cookie or dessert"],
+      "savings": "$3.50"
+    }
+  ]
+}
