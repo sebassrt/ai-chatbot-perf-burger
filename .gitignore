@@ -154,3 +154,8 @@ temp/
 *.pem
 *.key
 !*.key.example
+
+# Postman environment files (contain sensitive data)
+*Environment.postman_environment.json
+*_Environment.postman_environment.json
+PerfBurger_*.postman_environment.json

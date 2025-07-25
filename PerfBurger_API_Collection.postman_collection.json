@@ -1,0 +1,905 @@
+{
+  "info": {
+    "name": "PerfBurger AI Chatbot API",
+    "description": "Complete API collection for testing the PerfBurger AI chatbot endpoints including authentication, chat, and order management. This collection includes comprehensive tests for all endpoints to validate functionality, error handling, and data integrity.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "// Collection-level pre-request script",
+          "// Set default timeout",
+          "if (!pm.environment.get('timeout')) {",
+          "    pm.environment.set('timeout', '30000');",
+          "}",
+          "",
+          "// Ensure content type is set",
+          "if (!pm.environment.get('contentType')) {",
+          "    pm.environment.set('contentType', 'application/json');",
+          "}",
+          "",
+          "// Log current test being executed",
+          "console.log('Executing: ' + pm.info.requestName);"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "exec": [
+          "// Collection-level tests that run after every request",
+          "",
+          "// Test that response headers are present",
+          "pm.test('Response has required headers', function () {",
+          "    pm.response.to.have.header('Content-Type');",
+          "});",
+          "",
+          "// Test response format is JSON (except for specific endpoints)",
+          "if (pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json')) {",
+          "    pm.test('Response is valid JSON', function () {",
+          "        pm.response.to.be.json;",
+          "    });",
+          "}",
+          "",
+          "// Log response time for performance monitoring",
+          "console.log('Response time: ' + pm.response.responseTime + 'ms');"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "description": "Base URL for the PerfBurger API"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "description": "JWT access token (auto-populated after login)"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Test that health check returns 200 OK",
+              "pm.test('Health check returns 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// Test response time is reasonable",
+              "pm.test('Response time is less than 1000ms', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+              "});",
+              "",
+              "// Test response body contains status",
+              "pm.test('Response has status field', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('status');",
+              "    pm.expect(jsonData.status).to.eql('healthy');",
+              "});",
+              "",
+              "// Test response is JSON",
+              "pm.test('Response is JSON', function () {",
+              "    pm.response.to.have.header('Content-Type', 'application/json');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "Check if the API is running and healthy"
+      },
+      "response": []
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test successful registration",
+                  "pm.test('User registration successful', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "// Test response contains required fields",
+                  "pm.test('Response contains user and access_token', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('user');",
+                  "    pm.expect(response).to.have.property('access_token');",
+                  "    pm.expect(response.user).to.have.property('email');",
+                  "    pm.expect(response.user).to.have.property('first_name');",
+                  "    pm.expect(response.user).to.have.property('last_name');",
+                  "});",
+                  "",
+                  "// Save access token for subsequent requests",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.access_token) {",
+                  "        pm.collectionVariables.set('accessToken', response.access_token);",
+                  "        pm.environment.set('accessToken', response.access_token);",
+                  "        console.log('Access token saved:', response.access_token);",
+                  "    }",
+                  "}",
+                  "",
+                  "// Test user data matches request",
+                  "pm.test('User data matches registration request', function () {",
+                  "    const response = pm.response.json();",
+                  "    const requestBody = JSON.parse(pm.request.body.raw);",
+                  "    pm.expect(response.user.email).to.eql(requestBody.email);",
+                  "    pm.expect(response.user.first_name).to.eql(requestBody.first_name);",
+                  "    pm.expect(response.user.last_name).to.eql(requestBody.last_name);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@perfburger.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "register"]
+            },
+            "description": "Register a new user account"
+          }
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test successful login",
+                  "pm.test('User login successful', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test response contains required fields",
+                  "pm.test('Response contains user and access_token', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('user');",
+                  "    pm.expect(response).to.have.property('access_token');",
+                  "    pm.expect(response.user).to.have.property('email');",
+                  "    pm.expect(response.user).to.have.property('first_name');",
+                  "});",
+                  "",
+                  "// Test JWT token format",
+                  "pm.test('Access token is JWT format', function () {",
+                  "    const response = pm.response.json();",
+                  "    const tokenParts = response.access_token.split('.');",
+                  "    pm.expect(tokenParts).to.have.lengthOf(3);",
+                  "});",
+                  "",
+                  "// Save access token for subsequent requests",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.access_token) {",
+                  "        pm.collectionVariables.set('accessToken', response.access_token);",
+                  "        pm.environment.set('accessToken', response.access_token);",
+                  "        console.log('Access token saved:', response.access_token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@perfburger.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "login"]
+            },
+            "description": "Login with existing user credentials"
+          }
+        },
+        {
+          "name": "Get User Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test successful profile retrieval",
+                  "pm.test('Profile retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test response contains user profile data",
+                  "pm.test('Response contains user profile', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('user');",
+                  "    pm.expect(response.user).to.have.property('id');",
+                  "    pm.expect(response.user).to.have.property('email');",
+                  "    pm.expect(response.user).to.have.property('first_name');",
+                  "    pm.expect(response.user).to.have.property('last_name');",
+                  "});",
+                  "",
+                  "// Test email format is valid",
+                  "pm.test('Email has valid format', function () {",
+                  "    const response = pm.response.json();",
+                  "    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;",
+                  "    pm.expect(response.user.email).to.match(emailRegex);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "profile"]
+            },
+            "description": "Get current user profile (requires authentication)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat",
+      "item": [
+        {
+          "name": "Send Chat Message",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test successful chat response",
+                  "pm.test('Chat message sent successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test response contains required fields",
+                  "pm.test('Response contains chat data', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('response');",
+                  "    pm.expect(response).to.have.property('session_id');",
+                  "    pm.expect(response).to.have.property('timestamp');",
+                  "});",
+                  "",
+                  "// Test response is not empty",
+                  "pm.test('Chat response is not empty', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.response).to.not.be.empty;",
+                  "});",
+                  "",
+                  "// Save session ID for future requests",
+                  "pm.test('Session ID is valid', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.session_id).to.not.be.empty;",
+                  "    pm.environment.set('sessionId', response.session_id);",
+                  "});",
+                  "",
+                  "// Test response time is reasonable",
+                  "pm.test('Response time is acceptable', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Hello! Can you tell me about your menu?\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chat",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat"]
+            },
+            "description": "Send a message to the AI chatbot"
+          }
+        },
+        {
+          "name": "Ask About Burgers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test successful response to menu inquiry",
+                  "pm.test('Menu inquiry responded successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test response mentions menu items or vegetarian",
+                  "pm.test('Response contains relevant menu information', function () {",
+                  "    const response = pm.response.json();",
+                  "    const responseText = response.response.toLowerCase();",
+                  "    const hasMenuKeywords = responseText.includes('burger') || ",
+                  "                           responseText.includes('vegetarian') || ",
+                  "                           responseText.includes('menu') ||",
+                  "                           responseText.includes('price');",
+                  "    pm.expect(hasMenuKeywords).to.be.true;",
+                  "});",
+                  "",
+                  "// Test knowledge base integration",
+                  "pm.test('Response uses knowledge base data', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('sources');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"What vegetarian options do you have under $15?\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chat",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat"]
+            },
+            "description": "Ask about specific menu items"
+          }
+        },
+        {
+          "name": "Ask About Delivery",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test successful delivery inquiry",
+                  "pm.test('Delivery inquiry responded successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test response mentions delivery information",
+                  "pm.test('Response contains delivery information', function () {",
+                  "    const response = pm.response.json();",
+                  "    const responseText = response.response.toLowerCase();",
+                  "    const hasDeliveryKeywords = responseText.includes('delivery') || ",
+                  "                               responseText.includes('minutes') || ",
+                  "                               responseText.includes('time') ||",
+                  "                               responseText.includes('shipping');",
+                  "    pm.expect(hasDeliveryKeywords).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"How long does delivery usually take?\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chat",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat"]
+            },
+            "description": "Ask about delivery information"
+          }
+        },
+        {
+          "name": "Get Chat Sessions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test successful sessions retrieval",
+                  "pm.test('Chat sessions retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test response is an array",
+                  "pm.test('Response contains sessions array', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('sessions');",
+                  "    pm.expect(response.sessions).to.be.an('array');",
+                  "});",
+                  "",
+                  "// Test session structure if sessions exist",
+                  "pm.test('Sessions have correct structure', function () {",
+                  "    const response = pm.response.json();",
+                  "    if (response.sessions.length > 0) {",
+                  "        const session = response.sessions[0];",
+                  "        pm.expect(session).to.have.property('session_id');",
+                  "        pm.expect(session).to.have.property('created_at');",
+                  "        pm.expect(session).to.have.property('message_count');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/chat/sessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat", "sessions"]
+            },
+            "description": "Get all chat sessions for the current user"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Get Order Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test successful order status retrieval",
+                  "pm.test('Order status retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test response contains order data",
+                  "pm.test('Response contains order information', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('order');",
+                  "    pm.expect(response.order).to.have.property('id');",
+                  "    pm.expect(response.order).to.have.property('status');",
+                  "    pm.expect(response.order).to.have.property('items');",
+                  "    pm.expect(response.order).to.have.property('total');",
+                  "});",
+                  "",
+                  "// Test order ID matches request",
+                  "pm.test('Order ID matches request', function () {",
+                  "    const response = pm.response.json();",
+                  "    const orderIdFromUrl = pm.request.url.path[pm.request.url.path.length - 1];",
+                  "    pm.expect(response.order.id).to.eql(orderIdFromUrl);",
+                  "});",
+                  "",
+                  "// Test status is valid",
+                  "pm.test('Order status is valid', function () {",
+                  "    const response = pm.response.json();",
+                  "    const validStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'];",
+                  "    pm.expect(validStatuses).to.include(response.order.status);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{sampleOrderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{sampleOrderId}}"]
+            },
+            "description": "Get order status by ID (sample order ID: PB001234)"
+          }
+        },
+        {
+          "name": "Track Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test successful order tracking",
+                  "pm.test('Order tracking retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test response contains tracking data",
+                  "pm.test('Response contains tracking information', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('tracking');",
+                  "    pm.expect(response.tracking).to.have.property('order_id');",
+                  "    pm.expect(response.tracking).to.have.property('current_status');",
+                  "    pm.expect(response.tracking).to.have.property('status_history');",
+                  "});",
+                  "",
+                  "// Test status history is an array",
+                  "pm.test('Status history is an array', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.tracking.status_history).to.be.an('array');",
+                  "});",
+                  "",
+                  "// Test estimated delivery time if provided",
+                  "pm.test('Contains delivery information', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.tracking).to.have.property('estimated_delivery');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{sampleOrderId}}/tracking",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{sampleOrderId}}", "tracking"]
+            },
+            "description": "Get detailed tracking information for an order"
+          }
+        },
+        {
+          "name": "Get All User Orders",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test successful orders retrieval",
+                  "pm.test('User orders retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test response contains orders array",
+                  "pm.test('Response contains orders array', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('orders');",
+                  "    pm.expect(response.orders).to.be.an('array');",
+                  "});",
+                  "",
+                  "// Test order structure if orders exist",
+                  "pm.test('Orders have correct structure', function () {",
+                  "    const response = pm.response.json();",
+                  "    if (response.orders.length > 0) {",
+                  "        const order = response.orders[0];",
+                  "        pm.expect(order).to.have.property('id');",
+                  "        pm.expect(order).to.have.property('status');",
+                  "        pm.expect(order).to.have.property('created_at');",
+                  "        pm.expect(order).to.have.property('total');",
+                  "    }",
+                  "});",
+                  "",
+                  "// Test pagination info",
+                  "pm.test('Response contains pagination info', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('total_count');",
+                  "    pm.expect(response).to.have.property('page');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"]
+            },
+            "description": "Get all orders for the current user"
+          }
+        },
+        {
+          "name": "Report Order Issue",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test successful issue reporting",
+                  "pm.test('Order issue reported successfully', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "// Test response contains issue data",
+                  "pm.test('Response contains issue information', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('issue');",
+                  "    pm.expect(response.issue).to.have.property('id');",
+                  "    pm.expect(response.issue).to.have.property('order_id');",
+                  "    pm.expect(response.issue).to.have.property('issue_type');",
+                  "    pm.expect(response.issue).to.have.property('description');",
+                  "    pm.expect(response.issue).to.have.property('status');",
+                  "});",
+                  "",
+                  "// Test issue data matches request",
+                  "pm.test('Issue data matches request', function () {",
+                  "    const response = pm.response.json();",
+                  "    const requestBody = JSON.parse(pm.request.body.raw);",
+                  "    pm.expect(response.issue.issue_type).to.eql(requestBody.issue_type);",
+                  "    pm.expect(response.issue.description).to.eql(requestBody.description);",
+                  "});",
+                  "",
+                  "// Test initial status is correct",
+                  "pm.test('Issue has initial status', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.issue.status).to.eql('reported');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"issue_type\": \"wrong_order\",\n  \"description\": \"I received a Classic PerfBurger but ordered a Veggie Supreme\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{sampleOrderId}}/issues",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{sampleOrderId}}", "issues"]
+            },
+            "description": "Report an issue with an order"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error Testing",
+      "item": [
+        {
+          "name": "Unauthenticated Chat Request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test that unauthorized request returns 401",
+                  "pm.test('Unauthenticated request returns 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "// Test error message is present",
+                  "pm.test('Response contains error message', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('error');",
+                  "    pm.expect(response.error).to.include('token');",
+                  "});",
+                  "",
+                  "// Test no sensitive data is leaked",
+                  "pm.test('No sensitive data in error response', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.not.have.property('access_token');",
+                  "    pm.expect(response).to.not.have.property('user');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"This should fail without authentication\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chat",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat"]
+            },
+            "description": "Test that chat endpoint requires authentication"
+          }
+        },
+        {
+          "name": "Invalid Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test that invalid login returns 401",
+                  "pm.test('Invalid login returns 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "// Test error message is appropriate",
+                  "pm.test('Response contains appropriate error message', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('error');",
+                  "    const errorMsg = response.error.toLowerCase();",
+                  "    const hasAuthKeywords = errorMsg.includes('invalid') || ",
+                  "                           errorMsg.includes('credentials') ||",
+                  "                           errorMsg.includes('unauthorized');",
+                  "    pm.expect(hasAuthKeywords).to.be.true;",
+                  "});",
+                  "",
+                  "// Test no access token is provided",
+                  "pm.test('No access token in invalid login response', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.not.have.property('access_token');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nonexistent@example.com\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "login"]
+            },
+            "description": "Test login with invalid credentials"
+          }
+        },
+        {
+          "name": "Duplicate Registration",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test that duplicate registration returns 400 or 409",
+                  "pm.test('Duplicate registration returns appropriate error code', function () {",
+                  "    pm.expect([400, 409]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "// Test error message mentions duplicate/existing user",
+                  "pm.test('Response indicates duplicate user', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('error');",
+                  "    const errorMsg = response.error.toLowerCase();",
+                  "    const hasDuplicateKeywords = errorMsg.includes('exists') || ",
+                  "                                errorMsg.includes('duplicate') ||",
+                  "                                errorMsg.includes('already') ||",
+                  "                                errorMsg.includes('registered');",
+                  "    pm.expect(hasDuplicateKeywords).to.be.true;",
+                  "});",
+                  "",
+                  "// Test no access token is provided for failed registration",
+                  "pm.test('No access token in failed registration', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.not.have.property('access_token');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{testUserEmail}}\",\n  \"password\": \"{{testUserPassword}}\",\n  \"first_name\": \"{{testUserFirstName}}\",\n  \"last_name\": \"{{testUserLastName}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "register"]
+            },
+            "description": "Test registration with already existing email"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,327 @@
+###
+# PerfBurger AI Chatbot API Testing
+# VS Code REST Client Extension
+# 
+# Instructions:
+# 1. Install "REST Client" extension in VS Code
+# 2. Make sure your server is running (python run.py)
+# 3. Click "Send Request" above each request
+# 4. Variables are defined at the top and used throughout
+###
+
+### Variables
+@baseUrl = http://localhost:5000
+@contentType = application/json
+
+# This will be set after login - copy the access_token from login response
+@accessToken = YOUR_TOKEN_HERE
+
+###############################################################################
+# HEALTH CHECK
+###############################################################################
+
+### Health Check
+GET {{baseUrl}}/health
+
+###############################################################################
+# AUTHENTICATION
+###############################################################################
+
+### Register User
+POST {{baseUrl}}/users/register
+Content-Type: {{contentType}}
+
+{
+  "email": "test@perfburger.com",
+  "password": "password123",
+  "first_name": "John",
+  "last_name": "Doe"
+}
+
+### Login User
+# @name login
+POST {{baseUrl}}/users/login
+Content-Type: {{contentType}}
+
+{
+  "email": "test@perfburger.com",
+  "password": "password123"
+}
+
+### Get User Profile (requires authentication)
+GET {{baseUrl}}/users/profile
+Authorization: Bearer {{accessToken}}
+
+###############################################################################
+# CHAT ENDPOINTS
+###############################################################################
+
+### Send Basic Chat Message
+POST {{baseUrl}}/chat
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "message": "Hello! Can you tell me about your menu?"
+}
+
+### Ask About Menu Items
+POST {{baseUrl}}/chat
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "message": "What vegetarian options do you have under $15?"
+}
+
+### Ask About Burgers
+POST {{baseUrl}}/chat
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "message": "Tell me about the Classic PerfBurger ingredients and allergens"
+}
+
+### Ask About Delivery
+POST {{baseUrl}}/chat
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "message": "How long does delivery usually take? What are your delivery hours?"
+}
+
+### Ask About Order Status
+POST {{baseUrl}}/chat
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "message": "I want to check the status of my order PB001234"
+}
+
+### Ask Complex Question
+POST {{baseUrl}}/chat
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "message": "I'm allergic to gluten and dairy. What can I order? Also, do you deliver to downtown?"
+}
+
+### Continue Conversation
+POST {{baseUrl}}/chat
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "message": "What sides would go well with that?",
+  "session_id": "SESSION_ID_FROM_PREVIOUS_RESPONSE"
+}
+
+### Get Chat Sessions
+GET {{baseUrl}}/chat/sessions
+Authorization: Bearer {{accessToken}}
+
+### Get Messages from Specific Session
+GET {{baseUrl}}/chat/sessions/SESSION_ID_HERE/messages
+Authorization: Bearer {{accessToken}}
+
+###############################################################################
+# ORDER ENDPOINTS
+###############################################################################
+
+### Get Order Status
+GET {{baseUrl}}/orders/PB001234
+Authorization: Bearer {{accessToken}}
+
+### Track Order
+GET {{baseUrl}}/orders/PB001234/tracking
+Authorization: Bearer {{accessToken}}
+
+### Get All User Orders
+GET {{baseUrl}}/orders
+Authorization: Bearer {{accessToken}}
+
+### Report Order Issue
+POST {{baseUrl}}/orders/PB001234/issues
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "issue_type": "wrong_order",
+  "description": "I received a Classic PerfBurger but ordered a Veggie Supreme. The order was missing the avocado and had meat instead."
+}
+
+### Report Delivery Delay Issue
+POST {{baseUrl}}/orders/PB001234/issues
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "issue_type": "delivery_delay",
+  "description": "My order was supposed to arrive 30 minutes ago. Can you provide an update?"
+}
+
+###############################################################################
+# ERROR TESTING - Testing edge cases and security
+###############################################################################
+
+### Unauthenticated Chat Request (should fail)
+POST {{baseUrl}}/chat
+Content-Type: {{contentType}}
+
+{
+  "message": "This should fail without authentication"
+}
+
+### Invalid Login Credentials
+POST {{baseUrl}}/users/login
+Content-Type: {{contentType}}
+
+{
+  "email": "nonexistent@example.com",
+  "password": "wrongpassword"
+}
+
+### Duplicate Registration (should fail after first registration)
+POST {{baseUrl}}/users/register
+Content-Type: {{contentType}}
+
+{
+  "email": "test@perfburger.com",
+  "password": "password123",
+  "first_name": "Jane",
+  "last_name": "Smith"
+}
+
+### Missing Required Fields
+POST {{baseUrl}}/users/register
+Content-Type: {{contentType}}
+
+{
+  "email": "incomplete@example.com"
+}
+
+### Invalid Email Format
+POST {{baseUrl}}/users/register
+Content-Type: {{contentType}}
+
+{
+  "email": "invalid-email",
+  "password": "password123",
+  "first_name": "Test",
+  "last_name": "User"
+}
+
+### Short Password
+POST {{baseUrl}}/users/register
+Content-Type: {{contentType}}
+
+{
+  "email": "shortpass@example.com",
+  "password": "123",
+  "first_name": "Test",
+  "last_name": "User"
+}
+
+### Empty Chat Message
+POST {{baseUrl}}/chat
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "message": ""
+}
+
+### Access Non-existent Order
+GET {{baseUrl}}/orders/INVALID123
+Authorization: Bearer {{accessToken}}
+
+### Invalid Bearer Token
+GET {{baseUrl}}/users/profile
+Authorization: Bearer invalid_token_here
+
+###############################################################################
+# TESTING WORKFLOW EXAMPLES
+###############################################################################
+
+### Example 1: New User Journey
+# 1. Register new user
+POST {{baseUrl}}/users/register
+Content-Type: {{contentType}}
+
+{
+  "email": "newcustomer@example.com",
+  "password": "secure123",
+  "first_name": "Alice",
+  "last_name": "Johnson"
+}
+
+### 2. Login with new user
+POST {{baseUrl}}/users/login
+Content-Type: {{contentType}}
+
+{
+  "email": "newcustomer@example.com",
+  "password": "secure123"
+}
+
+### 3. Ask about menu
+POST {{baseUrl}}/chat
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "message": "Hi! I'm new here. What are your most popular burgers?"
+}
+
+### 4. Ask follow-up question
+POST {{baseUrl}}/chat
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "message": "Do you have any healthy options? I'm trying to eat less meat."
+}
+
+###############################################################################
+# LOAD TESTING - Multiple rapid requests
+###############################################################################
+
+### Rapid Health Checks (test server stability)
+GET {{baseUrl}}/health
+
+###
+GET {{baseUrl}}/health
+
+###
+GET {{baseUrl}}/health
+
+### Multiple Chat Messages (test AI integration)
+POST {{baseUrl}}/chat
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "message": "What's your most expensive burger?"
+}
+
+###
+POST {{baseUrl}}/chat
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "message": "What's your cheapest option?"
+}
+
+###
+POST {{baseUrl}}/chat
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "message": "Do you have any combo deals?"
+}

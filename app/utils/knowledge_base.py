@@ -1,7 +1,7 @@
 import os
 import json
 import yaml
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from flask import current_app
 import logging
 
@@ -9,13 +9,22 @@ class KnowledgeBase:
     """RAG knowledge base for retrieving relevant context"""
     
     def __init__(self):
-        self.knowledge_data = None
-        self._load_knowledge_base()
+        self.knowledge_data: Optional[Dict[str, Any]] = None
+    
+    def _ensure_loaded(self):
+        """Ensure knowledge base is loaded (lazy loading)"""
+        if self.knowledge_data is None:
+            self._load_knowledge_base()
     
     def _load_knowledge_base(self):
         """Load knowledge base from files"""
         try:
-            kb_path = current_app.config.get('KNOWLEDGE_BASE_PATH', 'knowledge_base/')
+            # Use relative path if no flask context
+            try:
+                kb_path = current_app.config.get('KNOWLEDGE_BASE_PATH', 'knowledge_base/')
+            except RuntimeError:
+                # No application context, use relative path
+                kb_path = 'knowledge_base/'
             
             # Load all knowledge base files
             self.knowledge_data = {
@@ -59,6 +68,7 @@ class KnowledgeBase:
         Returns:
             List[Dict]: List of relevant knowledge base entries
         """
+        self._ensure_loaded()
         if not self.knowledge_data:
             return []
         
@@ -88,6 +98,9 @@ class KnowledgeBase:
     
     def _search_menu(self, query: str) -> List[Dict[str, Any]]:
         """Search menu items"""
+        self._ensure_loaded()
+        if not self.knowledge_data:
+            return []
         results = []
         menu_data = self.knowledge_data.get('menu', {})
         
@@ -122,6 +135,9 @@ class KnowledgeBase:
     
     def _search_faqs(self, query: str) -> List[Dict[str, Any]]:
         """Search FAQ entries"""
+        self._ensure_loaded()
+        if not self.knowledge_data:
+            return []
         results = []
         faqs = self.knowledge_data.get('faqs', {}).get('faqs', [])
         
@@ -142,6 +158,9 @@ class KnowledgeBase:
     
     def _search_policies(self, query: str) -> List[Dict[str, Any]]:
         """Search policy documents"""
+        self._ensure_loaded()
+        if not self.knowledge_data:
+            return []
         results = []
         policies = self.knowledge_data.get('policies', {})
         
