@@ -21,13 +21,14 @@ This chatbot specializes in **PerfBurger** - a premium burger delivery service. 
 
 ## Tech Stack
 
-- **Backend**: Python 3.9+, Flask, SQLAlchemy
-- **Authentication**: JWT tokens
-- **AI/LLM**: OpenAI GPT integration
-- **Database**: SQLite (dev), PostgreSQL (prod)
-- **Testing**: pytest
+- **Backend**: Python 3.13+, Flask 3.0+, SQLAlchemy 2.0+
+- **Authentication**: JWT tokens (Flask-JWT-Extended)
+- **AI/LLM**: OpenAI GPT integration with RAG
+- **Database**: SQLite (development), PostgreSQL (production ready)
+- **Testing**: pytest, Postman, VS Code REST Client
+- **Security**: bcrypt password hashing, CORS support
 - **Deployment**: Docker, Kubernetes
-- **CI/CD**: GitHub Actions
+- **CI/CD**: GitHub Actions ready
 
 ## Getting Started
 
@@ -64,7 +65,7 @@ cp .env.example .env
 
 5. Initialize database:
 ```bash
-flask db upgrade
+python init_db.py
 ```
 
 6. Run the application:
@@ -74,23 +75,47 @@ python run.py
 
 ## API Endpoints
 
+### Authentication
 - `POST /users/register` - User registration
 - `POST /users/login` - User authentication
-- `POST /chat` - Chat with the AI assistant (authenticated)
-- `GET /orders/{id}` - Get order status
+- `GET /users/profile` - Get user profile (authenticated)
+
+### Chat
+- `POST /chat/` - Chat with the AI assistant (authenticated)
+- `GET /chat/sessions` - Get user's chat sessions (authenticated)
+
+### Orders
+- `GET /orders` - Get all user orders (authenticated)
+- `GET /orders/{id}` - Get specific order status (authenticated)
+- `GET /orders/{id}/tracking` - Get order tracking details (authenticated)
+- `POST /orders/{id}/issues` - Report order issue (authenticated)
+
+### System
 - `GET /health` - Health check endpoint
 
 ## Project Structure
 
 ```
 ai-chatbot-perf-burger/
-├── app/                    # Main application package
-├── tests/                  # Test suite
-├── knowledge_base/         # RAG knowledge base
-├── deployment/             # Deployment configurations
-├── requirements.txt        # Python dependencies
-├── Dockerfile             # Container configuration
-└── README.md              # This file
+├── app/                                    # Main application package
+│   ├── auth/                              # Authentication blueprint
+│   ├── chat/                              # Chat functionality
+│   ├── orders/                            # Order management
+│   ├── models/                            # Database models
+│   └── utils/                             # Utilities (LLM, knowledge base)
+├── tests/                                 # Test suite
+├── knowledge_base/                        # RAG knowledge base files
+│   ├── menu.json                         # Restaurant menu data
+│   ├── faqs.yaml                         # Frequently asked questions
+│   └── policies.json                     # Company policies
+├── deployment/                            # Deployment configurations
+│   └── k8s/                              # Kubernetes manifests
+├── instance/                              # Database files (gitignored)
+├── init_db.py                            # Database initialization script
+├── requirements.txt                      # Python dependencies
+├── Dockerfile                           # Container configuration
+├── .env.example                         # Environment variables template
+└── README.md                            # This file
 ```
 
 ## Development
@@ -106,6 +131,46 @@ pytest
 ```bash
 black app/
 flake8 app/
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**404 Error on API endpoints**
+- Ensure the server is running: `python run.py`
+- Check that blueprint routes are properly imported in `app/*/__init__.py` files
+
+**Database errors**
+- Run database initialization: `python init_db.py`
+- Check `.env` file configuration
+
+**JWT Authentication errors**
+- Verify JWT_SECRET_KEY is set in `.env`
+- Check that Authorization header format is: `Bearer <token>`
+
+**Knowledge base not loading**
+- Ensure knowledge base files exist in `knowledge_base/` directory
+- Check file permissions and JSON/YAML syntax
+
+## Environment Configuration
+
+Copy `.env.example` to `.env` and configure:
+
+```bash
+# Flask Configuration
+FLASK_ENV=development
+SECRET_KEY=your-secret-key-here
+JWT_SECRET_KEY=your-jwt-secret-key
+
+# Database
+DATABASE_URL=sqlite:///instance/chatbot.db
+
+# OpenAI (optional)
+OPENAI_API_KEY=your-openai-api-key
+
+# Knowledge Base
+KNOWLEDGE_BASE_PATH=knowledge_base/
 ```
 
 ## Deployment
