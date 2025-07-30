@@ -36,19 +36,17 @@ def chat():
         
         if not chat_session:
             # Create new session
-            chat_session = ChatSession(
-                user_id=user_id,
-                session_id=str(uuid.uuid4())
-            )
+            chat_session = ChatSession()
+            chat_session.user_id = user_id
+            chat_session.session_id = str(uuid.uuid4())
             db.session.add(chat_session)
             db.session.commit()
         
         # Save user message
-        user_msg = ChatMessage(
-            session_id=chat_session.id,
-            message_type='user',
-            content=user_message
-        )
+        user_msg = ChatMessage()
+        user_msg.session_id = chat_session.id
+        user_msg.message_type = 'user'
+        user_msg.content = user_message
         db.session.add(user_msg)
         
         # Retrieve relevant knowledge base content
@@ -62,12 +60,11 @@ def chat():
         )
         
         # Save AI response
-        ai_msg = ChatMessage(
-            session_id=chat_session.id,
-            message_type='assistant',
-            content=ai_response,
-            retrieved_context=str(retrieved_context) if retrieved_context else None
-        )
+        ai_msg = ChatMessage()
+        ai_msg.session_id = chat_session.id
+        ai_msg.message_type = 'assistant'
+        ai_msg.content = ai_response
+        ai_msg.retrieved_context = str(retrieved_context) if retrieved_context else None
         db.session.add(ai_msg)
         db.session.commit()
         
