@@ -21,7 +21,7 @@ This chatbot specializes in **PerfBurger** - a premium burger delivery service. 
 
 ## Tech Stack
 
-- **Backend**: Python 3.13+, Flask 3.0+, SQLAlchemy 2.0+
+- **Backend**: Python 3.9+, Flask 3.0+, SQLAlchemy 2.0+
 - **Authentication**: JWT tokens (Flask-JWT-Extended)
 - **AI/LLM**: OpenAI GPT integration with RAG
 - **Database**: SQLite (development), PostgreSQL (production ready)
