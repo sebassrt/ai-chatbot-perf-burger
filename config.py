@@ -6,12 +6,20 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
     
     # Database configuration
-    # Use temp directory for SQLite on Azure, or instance directory locally
     if os.environ.get('WEBSITE_HOSTNAME'):  # Running on Azure
         db_path = os.path.join('/tmp', 'chatbot.db')
         SQLALCHEMY_DATABASE_URI = f'sqlite:///{db_path}'
     else:
-        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///instance/chatbot.db'
+        # Create instance directory if it doesn't exist
+        basedir = os.path.abspath(os.path.dirname(__file__))
+        instance_dir = os.path.join(basedir, 'instance')
+        if not os.path.exists(instance_dir):
+            os.makedirs(instance_dir)
+        
+        # Use absolute path for local database
+        db_path = os.path.join(instance_dir, 'chatbot.db')
+        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or f'sqlite:///{db_path}'
+    
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT configuration
