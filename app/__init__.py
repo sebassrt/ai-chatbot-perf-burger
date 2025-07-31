@@ -17,6 +17,12 @@ def create_app(config_class=Config):
     jwt.init_app(app)
     CORS(app)
     
+    # Create database tables
+    with app.app_context():
+        # Import models to ensure they are registered with SQLAlchemy
+        from app.models import User, ChatSession, ChatMessage, Order
+        db.create_all()
+    
     # Register blueprints
     from app.auth import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix='/users')

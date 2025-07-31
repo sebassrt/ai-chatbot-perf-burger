@@ -6,7 +6,12 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
     
     # Database configuration
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///chatbot.db'
+    # Use temp directory for SQLite on Azure, or instance directory locally
+    if os.environ.get('WEBSITE_HOSTNAME'):  # Running on Azure
+        db_path = os.path.join('/tmp', 'chatbot.db')
+        SQLALCHEMY_DATABASE_URI = f'sqlite:///{db_path}'
+    else:
+        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///instance/chatbot.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT configuration
