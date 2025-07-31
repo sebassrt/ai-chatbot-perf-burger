@@ -175,7 +175,16 @@ KNOWLEDGE_BASE_PATH=knowledge_base/
 
 ## Deployment
 
-See the `deployment/` directory for Kubernetes manifests and cloud deployment configurations.
+### 🚀 Live Demo
+The PerfBurger AI Chatbot is live on Azure:
+- **URL**: https://perfburger-chatbot-a6eph3fsavbwc5bm.westeurope-01.azurewebsites.net
+- **Health Check**: https://perfburger-chatbot-a6eph3fsavbwc5bm.westeurope-01.azurewebsites.net/health
+
+### Azure Web App
+Deployed using Azure Web App with automatic deployment from GitHub. Every push to `main` branch automatically updates the live application.
+
+### Other Options
+See the `deployment/` directory for Kubernetes manifests and other cloud deployment configurations.
 
 ## Contributing
 
