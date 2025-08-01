@@ -1,4 +1,4 @@
-import openai
+from openai import OpenAI
 from flask import current_app
 import logging
 
@@ -31,8 +31,7 @@ class LLMClient:
             if not api_key:
                 raise ValueError("OpenAI API key not configured")
             
-            openai.api_key = api_key
-            self.client = openai
+            self.client = OpenAI(api_key=api_key)
     
     def generate_response(self, user_message, context=None, chat_history=None):
         """
@@ -66,7 +65,7 @@ class LLMClient:
             messages.append({"role": "user", "content": user_message})
             
             # Generate response using OpenAI
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=messages,
                 max_tokens=500,
@@ -75,7 +74,8 @@ class LLMClient:
                 frequency_penalty=0.1
             )
             
-            return response.choices[0].message.content.strip()
+            content = response.choices[0].message.content
+            return content.strip() if content else "I apologize, but I'm having trouble generating a response right now."
             
         except Exception as e:
             logging.error(f"LLM generation error: {str(e)}")

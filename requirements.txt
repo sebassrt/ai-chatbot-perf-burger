@@ -21,7 +21,7 @@ python-dotenv==1.0.0
 requests==2.31.0
 
 # OpenAI integration
-openai==1.7.0
+openai==1.57.2
 
 # Data processing
 PyYAML==6.0.1

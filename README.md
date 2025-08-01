@@ -48,7 +48,7 @@ cd ai-chatbot-perf-burger
 
 2. Create virtual environment:
 ```bash
-python -m venv venv
+py -3.10 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
