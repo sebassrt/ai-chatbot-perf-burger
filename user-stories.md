@@ -5,47 +5,78 @@
 
 ## User Stories
 
-### Story 1: Order Status Inquiry
-**Persona**: Sarah, a busy professional who ordered lunch delivery  
-**Story**: As a customer, I want to check my order status so that I can plan my schedule and know when to expect my food.  
-**Benefit**: Reduces anxiety about delivery timing and improves customer satisfaction.  
+### Story 1: Menu Browsing and Information
+**Persona**: Mike, a first-time customer exploring food options  
+**Story**: As a potential customer, I want to browse the menu and get detailed information about items so that I can make an informed ordering decision.  
+**Benefit**: Enables customers to make confident ordering decisions and reduces support inquiries about menu items.  
 **Acceptance Criteria**:
-- User can provide order ID and receive current status
-- Status includes preparation stage, estimated delivery time, and driver details
-- System handles invalid order IDs gracefully
-- Response time under 3 seconds
-
-**Mapped Endpoint**: `GET /orders/{order_id}`
-
----
-
-### Story 2: Menu Information and Recommendations
-**Persona**: Mike, a first-time customer browsing the menu  
-**Story**: As a potential customer, I want to ask about menu items and get personalized recommendations so that I can make an informed ordering decision.  
-**Benefit**: Increases conversion rate and average order value through guided discovery.  
-**Acceptance Criteria**:
-- Chatbot can answer questions about ingredients, allergens, and nutritional info
-- System provides recommendations based on dietary preferences
-- Can handle complex queries like "vegetarian options under $15"
-- Maintains conversational context throughout the interaction
-
-**Mapped Endpoint**: `POST /chat` (with menu knowledge base integration)
-
----
-
-### Story 3: User Authentication and Account Management
-**Persona**: Lisa, a returning customer who wants to track her orders  
-**Story**: As a registered user, I want to securely log in to access my order history and personal information so that I can have a personalized experience.  
-**Benefit**: Enables personalized service and order tracking.  
-**Acceptance Criteria**:
-- User can register with email and password
-- Secure login with JWT token generation
-- Password validation and error handling
-- Session management for chat continuity
+- User can view complete menu with prices and descriptions
+- Can filter menu by categories (burgers, sides, drinks)
+- Each item shows ingredients, allergens, and nutritional info
+- Can search menu items by name or ingredient
+- Response time under 2 seconds
 
 **Mapped Endpoints**: 
-- `POST /users/register`
-- `POST /users/login`
+- `GET /menu` - Get full menu
+- `GET /menu/{category}` - Get items by category
+- `GET /menu/items/{id}` - Get detailed item information
+
+---
+
+### Story 2: Order Placement
+**Persona**: Alex, a hungry customer ready to order lunch  
+**Story**: As a customer, I want to place a food order with specific customizations so that I receive exactly what I want.  
+**Benefit**: Increases customer satisfaction by ensuring accurate order fulfillment.  
+**Acceptance Criteria**:
+- Can add multiple items to cart
+- Supports item customization (toppings, cooking preferences)
+- Shows real-time price calculation
+- Validates delivery address
+- Provides order summary before confirmation
+- Handles payment processing securely
+
+**Mapped Endpoints**:
+- `POST /orders` - Create new order
+- `GET /menu/customizations/{item_id}` - Get item customization options
+- `POST /orders/validate-address` - Validate delivery address
+
+---
+
+### Story 3: Order Tracking
+**Persona**: Sarah, a busy professional waiting for her order  
+**Story**: As a customer, I want to track my order status in real-time so that I know when to expect my delivery.  
+**Benefit**: Reduces anxiety about delivery timing and improves customer satisfaction.  
+**Acceptance Criteria**:
+- Shows current order status with estimated delivery time
+- Provides real-time updates on order preparation
+- Displays driver location and contact information
+- Sends notifications for status changes
+- Handles delivery delays gracefully
+
+**Mapped Endpoints**:
+- `GET /orders/{order_id}` - Get order status
+- `GET /orders/{order_id}/tracking` - Get real-time tracking
+- `GET /orders/{order_id}/driver` - Get driver details
+
+---
+
+### Story 4: Account Management
+**Persona**: Lisa, a regular customer  
+**Story**: As a registered user, I want to manage my account and view my order history so that I can track my purchases and preferences.  
+**Benefit**: Enables personalized service and simplified reordering.  
+**Acceptance Criteria**:
+- Secure registration and login
+- View and update profile information
+- Access order history and saved addresses
+- Save favorite orders for quick reordering
+- Manage payment methods securely
+
+**Mapped Endpoints**:
+- `POST /users/register` - Create new account
+- `POST /users/login` - Authenticate user
+- `GET /users/profile` - Get user profile
+- `GET /users/orders` - Get order history
+- `PUT /users/profile` - Update profile
 
 ---
 
