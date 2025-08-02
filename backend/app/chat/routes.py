@@ -6,6 +6,7 @@ from app.models import User, ChatSession, ChatMessage
 from app.utils.llm_client import LLMClient
 from app.utils.knowledge_base import KnowledgeBase
 import uuid
+import logging
 from datetime import datetime
 
 llm_client = LLMClient()
@@ -19,11 +20,16 @@ def chat():
         user_id = get_jwt_identity()
         data = request.get_json()
         
+        logging.info(f"Chat endpoint called by user {user_id}")
+        
         if not data.get('message'):
+            logging.warning("Chat request missing message")
             return jsonify({'error': 'Message is required'}), 400
         
         user_message = data['message'].strip()
         session_id = data.get('session_id')
+        
+        logging.info(f"User message: {user_message[:50]}...")
         
         # Get or create chat session
         if session_id:
@@ -31,8 +37,10 @@ def chat():
                 session_id=session_id, 
                 user_id=user_id
             ).first()
+            logging.info(f"Found existing session: {session_id}")
         else:
             chat_session = None
+            logging.info("No session ID provided")
         
         if not chat_session:
             # Create new session
@@ -41,6 +49,7 @@ def chat():
             chat_session.session_id = str(uuid.uuid4())
             db.session.add(chat_session)
             db.session.commit()
+            logging.info(f"Created new session: {chat_session.session_id}")
         
         # Save user message
         user_msg = ChatMessage()
@@ -50,14 +59,18 @@ def chat():
         db.session.add(user_msg)
         
         # Retrieve relevant knowledge base content
+        logging.info("Retrieving knowledge base context...")
         retrieved_context = knowledge_base.retrieve(user_message)
+        logging.info(f"Retrieved {len(retrieved_context) if retrieved_context else 0} knowledge base items")
         
         # Generate AI response
+        logging.info("Calling LLM client to generate response...")
         ai_response = llm_client.generate_response(
             user_message=user_message,
             context=retrieved_context,
             chat_history=get_chat_history(chat_session.id)
         )
+        logging.info(f"LLM response generated: {ai_response[:50]}...")
         
         # Save AI response
         ai_msg = ChatMessage()
@@ -68,6 +81,8 @@ def chat():
         db.session.add(ai_msg)
         db.session.commit()
         
+        logging.info("Chat response completed successfully")
+        
         return jsonify({
             'message': ai_response,
             'session_id': chat_session.session_id,
@@ -76,6 +91,8 @@ def chat():
         
     except Exception as e:
         db.session.rollback()
+        logging.error(f"Chat endpoint error: {str(e)}")
+        logging.error(f"Error type: {type(e).__name__}")
         return jsonify({'error': 'Chat failed', 'details': str(e)}), 500
 
 @bp.route('/sessions', methods=['GET'])

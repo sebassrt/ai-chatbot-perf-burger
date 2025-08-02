@@ -28,10 +28,23 @@ class LLMClient:
         """Initialize OpenAI client if not already done"""
         if self.client is None:
             api_key = current_app.config.get('OPENAI_API_KEY')
+            
+            # Detailed logging for Azure debugging
+            logging.info(f"LLM Client initialization - API key available: {bool(api_key)}")
+            if api_key:
+                logging.info(f"API key length: {len(api_key)} chars")
+                logging.info(f"API key starts with: {api_key[:8]}...")
+            
             if not api_key:
+                logging.error("OpenAI API key not configured - check environment variables")
                 raise ValueError("OpenAI API key not configured")
             
-            self.client = OpenAI(api_key=api_key)
+            try:
+                self.client = OpenAI(api_key=api_key)
+                logging.info("OpenAI client initialized successfully")
+            except Exception as e:
+                logging.error(f"Failed to initialize OpenAI client: {e}")
+                raise
     
     def generate_response(self, user_message, context=None, chat_history=None):
         """
@@ -46,7 +59,10 @@ class LLMClient:
             str: AI-generated response
         """
         try:
+            logging.info(f"LLM generate_response called with message: {user_message[:50]}...")
+            
             self._initialize_client()
+            logging.info("LLM client initialized successfully")
             
             # Build the conversation context
             messages = [{"role": "system", "content": self.system_prompt}]
@@ -56,13 +72,17 @@ class LLMClient:
                 context_text = self._format_context(context)
                 context_message = f"Here's some relevant information that might help answer the user's question:\n\n{context_text}"
                 messages.append({"role": "system", "content": context_message})
+                logging.info(f"Added context: {len(context)} items")
             
             # Add chat history
             if chat_history:
                 messages.extend(chat_history[-10:])  # Last 10 messages for context
+                logging.info(f"Added chat history: {len(chat_history[-10:])} messages")
             
             # Add current user message
             messages.append({"role": "user", "content": user_message})
+            
+            logging.info(f"Making OpenAI API call with {len(messages)} messages")
             
             # Generate response using OpenAI
             response = self.client.chat.completions.create(
@@ -75,11 +95,15 @@ class LLMClient:
             )
             
             content = response.choices[0].message.content
+            logging.info(f"OpenAI API call successful, response length: {len(content) if content else 0} chars")
             return content.strip() if content else "I apologize, but I'm having trouble generating a response right now."
             
         except Exception as e:
             logging.error(f"LLM generation error: {str(e)}")
-            return self._get_fallback_response(user_message)
+            logging.error(f"Error type: {type(e).__name__}")
+            fallback = self._get_fallback_response(user_message)
+            logging.info(f"Returning fallback response: {fallback[:50]}...")
+            return fallback
     
     def _format_context(self, context):
         """Format retrieved context for the AI prompt"""
