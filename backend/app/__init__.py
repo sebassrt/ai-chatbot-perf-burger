@@ -31,7 +31,21 @@ def create_app(config_class=Config):
     # Initialize extensions
     db.init_app(app)
     jwt.init_app(app)
-    CORS(app)
+    
+    # Configure CORS to allow frontend access
+    if os.environ.get('WEBSITE_HOSTNAME'):  # Running on Azure
+        # Allow Azure Static Web Apps frontend and localhost for development
+        CORS(app, origins=[
+            "https://*.azurestaticapps.net",
+            "http://localhost:3000",
+            "http://localhost:5173",  # Vite dev server
+            "http://localhost:4173"   # Vite preview server
+        ])
+        app.logger.info("CORS configured for Azure production")
+    else:
+        # Local development - allow all origins
+        CORS(app, origins="*")
+        app.logger.info("CORS configured for local development")
     
     # Create database tables
     with app.app_context():

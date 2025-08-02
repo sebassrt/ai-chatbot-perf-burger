@@ -4,11 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import ApiService from '../services/api';
 import type { ChatMessage, ChatState } from '../types';
 
-interface ChatWidgetProps {
-  apiUrl?: string;
-}
-
-const ChatWidget: React.FC<ChatWidgetProps> = ({ apiUrl = 'http://localhost:5000' }) => {
+const ChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [chatState, setChatState] = useState<ChatState>({
     messages: [],
@@ -20,7 +16,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ apiUrl = 'http://localhost:5000
   });
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const apiService = useRef(new ApiService(apiUrl));
+  const apiService = useRef(new ApiService());
 
   useEffect(() => {
     // Initialize anonymous user if not authenticated

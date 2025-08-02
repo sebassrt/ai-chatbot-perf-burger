@@ -6,7 +6,10 @@ class ApiService {
   private api: AxiosInstance;
   private token: string | null = null;
 
-  constructor(baseURL: string = 'http://localhost:5000') {
+  constructor() {
+    // Automatically detect the backend URL based on environment
+    const baseURL = this.getBackendUrl();
+    
     this.api = axios.create({
       baseURL,
       headers: {
@@ -30,6 +33,16 @@ class ApiService {
         return Promise.reject(error);
       }
     );
+  }
+
+  private getBackendUrl(): string {
+    // Check if we're in development mode
+    if (import.meta.env.DEV) {
+      return 'http://localhost:5000';
+    }
+    
+    // In production, use the Azure backend URL
+    return 'https://perfburger-chatbot.azurewebsites.net';
   }
 
   private setAuthHeader(token: string) {
