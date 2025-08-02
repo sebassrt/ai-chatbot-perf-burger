@@ -1,49 +1,81 @@
-# AI-Powered Chatbot Order Status Service
+# PerfBurger AI Chatbot - Monorepo
 
-A polite, customer-focused chatbot service built with Python/Flask that provides accurate information about burger orders and restaurant services.
+A modern, full-stack AI-powered chatbot service for PerfBurger - a premium burger delivery service. Built with a clean monorepo structure separating backend and frontend concerns.
 
 ## Project Overview
 
-This chatbot specializes in **PerfBurger** - a premium burger delivery service. The bot assists customers with:
-- Order status inquiries
-- Menu information
-- Delivery tracking
-- Customer support
+This application provides a complete chatbot solution with:
+- **Backend**: Python/Flask API with OpenAI integration and RAG (Retrieval-Augmented Generation)
+- **Frontend**: Modern React TypeScript application with beautiful UI
+- **AI Features**: Intelligent responses using knowledge base and chat memory
+- **Production Ready**: Azure deployment, CI/CD pipelines, and comprehensive testing
+
+## Monorepo Structure
+
+```
+├── backend/           # Python Flask API
+│   ├── app/          # Application modules
+│   ├── knowledge_base/  # RAG knowledge files
+│   ├── tests/        # Backend tests
+│   └── requirements.txt
+├── frontend/         # React TypeScript UI
+│   ├── src/         # React components and services
+│   ├── public/      # Static assets
+│   └── package.json
+├── .github/workflows/  # CI/CD pipelines
+└── deployment/       # Docker and K8s configs
+```
 
 ## Features
 
+### Backend Features
 - 🔐 JWT-based authentication
-- 💬 AI-powered chat responses
-- 📚 RAG (Retrieval-Augmented Generation) with knowledge base
-- 🧪 Comprehensive testing suite
-- 🚀 CI/CD pipeline ready
-- ☁️ Cloud deployment configurations
+- 🤖 OpenAI GPT integration with enhanced error handling
+- 📚 RAG with knowledge base (menu, FAQs, policies)
+- 💾 SQLite database with chat session management
+- 🩺 Health checks and debug endpoints
+- 📊 Comprehensive logging for Azure troubleshooting
+
+### Frontend Features
+- ⚡ Vite + React + TypeScript
+- 🎨 Modern glassmorphism design with pure CSS
+- 📝 Markdown rendering for chat messages
+- 📱 Responsive design
+- 🔌 Axios API integration
+- 🎯 Lucide React icons
 
 ## Tech Stack
 
-- **Backend**: Python 3.9+, Flask 3.0+, SQLAlchemy 2.0+
-- **Authentication**: JWT tokens (Flask-JWT-Extended)
-- **AI/LLM**: OpenAI GPT integration with RAG
-- **Database**: SQLite (development), PostgreSQL (production ready)
-- **Testing**: pytest, Postman, VS Code REST Client
-- **Security**: bcrypt password hashing, CORS support
-- **Deployment**: Docker, Kubernetes
-- **CI/CD**: GitHub Actions ready
+### Backend
+- **Runtime**: Python 3.10+
+- **Framework**: Flask 3.0+, SQLAlchemy 2.0+
+- **AI/LLM**: OpenAI GPT-3.5-turbo with RAG
+- **Auth**: JWT tokens (Flask-JWT-Extended)
+- **Database**: SQLite (development/Azure), PostgreSQL ready
+- **Testing**: pytest
+- **Deployment**: Gunicorn, Azure Web Apps
+
+### Frontend
+- **Framework**: React 19.1+ with TypeScript
+- **Build Tool**: Vite 7.0+
+- **Styling**: Pure CSS with modern design patterns
+- **HTTP Client**: Axios
+- **Markdown**: react-markdown with rehype-raw
+- **Icons**: Lucide React
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.9+
-- pip
-- Docker (optional)
+- Python 3.10+
+- Node.js 18+
+- npm or yarn
 
-### Installation
+### Backend Setup
 
-1. Clone the repository:
+1. Navigate to backend directory:
 ```bash
-git clone <repository-url>
-cd ai-chatbot-perf-burger
+cd backend
 ```
 
 2. Create virtual environment:
