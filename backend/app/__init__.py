@@ -37,14 +37,15 @@ def create_app(config_class=Config):
         # Allow Azure Static Web Apps frontend and localhost for development
         CORS(app, origins=[
             "https://*.azurestaticapps.net",
+            "https://perfburger-frontend-*.azurestaticapps.net",
             "http://localhost:3000",
             "http://localhost:5173",  # Vite dev server
             "http://localhost:4173"   # Vite preview server
-        ])
+        ], supports_credentials=True)
         app.logger.info("CORS configured for Azure production")
     else:
         # Local development - allow all origins
-        CORS(app, origins="*")
+        CORS(app, origins="*", supports_credentials=True)
         app.logger.info("CORS configured for local development")
     
     # Create database tables

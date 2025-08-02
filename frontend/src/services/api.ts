@@ -41,8 +41,8 @@ class ApiService {
       return 'http://localhost:5000';
     }
     
-    // In production, use the Azure backend URL
-    return 'https://perfburger-chatbot.azurewebsites.net';
+    // In production, use the correct Azure backend URL
+    return 'https://perfburger-chatbot-a6eph3fsavbwc5bm.westeurope-01.azurewebsites.net';
   }
 
   private setAuthHeader(token: string) {

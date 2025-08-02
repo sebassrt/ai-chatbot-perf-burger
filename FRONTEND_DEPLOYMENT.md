@@ -36,7 +36,7 @@ The workflow file is already created at:
 #### 4. Environment Configuration
 The frontend automatically detects:
 - **Development**: `http://localhost:5000` (backend)
-- **Production**: `https://perfburger-chatbot.azurewebsites.net` (backend)
+- **Production**: `https://perfburger-chatbot-a6eph3fsavbwc5bm.westeurope-01.azurewebsites.net` (backend)
 
 ### Accessing the Deployed Frontend
 After deployment, your frontend will be available at:
