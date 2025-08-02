@@ -8,6 +8,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/main_perfburger-chatbot.yml'
   workflow_dispatch:
 
 jobs:
@@ -30,17 +33,24 @@ jobs:
           source venv/bin/activate
       
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          source venv/bin/activate
+          pip install -r backend/requirements.txt
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
+      - name: Run tests
+        run: |
+          source venv/bin/activate
+          cd backend
+          # python -m pytest tests/ --verbose || echo "No tests found"
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
           name: python-app
           path: |
-            .
-            !venv/
+            backend/
+            !backend/venv/
 
   deploy:
     runs-on: ubuntu-latest
