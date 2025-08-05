@@ -35,13 +35,20 @@ def create_app(config_class=Config):
     # Configure CORS to allow frontend access
     if os.environ.get('WEBSITE_HOSTNAME'):  # Running on Azure
         # Allow Azure Static Web Apps frontend and localhost for development
-        CORS(app, origins=[
-            "https://*.azurestaticapps.net",
-            "https://perfburger-frontend-*.azurestaticapps.net",
-            "http://localhost:3000",
-            "http://localhost:5173",  # Vite dev server
-            "http://localhost:4173"   # Vite preview server
-        ], supports_credentials=True)
+        CORS(app, 
+             origins=[
+                 "https://*.azurestaticapps.net",
+                 "https://delightful-ground-0a878f803.azurestaticapps.net",
+                 "https://delightful-ground-0a878f803.1.azurestaticapps.net", 
+                 "https://delightful-ground-0a878f803.2.azurestaticapps.net",
+                 "https://perfburger-frontend-*.azurestaticapps.net",
+                 "http://localhost:3000",
+                 "http://localhost:5173",  # Vite dev server
+                 "http://localhost:4173"   # Vite preview server
+             ], 
+             supports_credentials=True,
+             allow_headers=['Content-Type', 'Authorization'],
+             methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
         app.logger.info("CORS configured for Azure production")
     else:
         # Local development - allow all origins
