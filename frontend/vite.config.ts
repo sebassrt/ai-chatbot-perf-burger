@@ -7,20 +7,8 @@ export default defineConfig({
   base: '/',
   build: {
     outDir: 'dist',
-    assetsDir: '',
+    assetsDir: 'assets',
     target: 'es2015',
-    minify: true,
-    lib: {
-      entry: 'src/main.tsx',
-      name: 'PerfBurgerApp',
-      formats: ['umd'],
-      fileName: 'perfburger-app'
-    },
-    rollupOptions: {
-      external: [],
-      output: {
-        globals: {}
-      }
-    }
+    minify: true
   }
 })
