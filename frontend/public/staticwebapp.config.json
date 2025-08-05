@@ -5,6 +5,18 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/perfburger-app.umd.js",
+      "headers": {
+        "Content-Type": "application/javascript"
+      }
+    },
+    {
+      "route": "/perfburger-app.css",
+      "headers": {
+        "Content-Type": "text/css"
+      }
+    },
+    {
       "route": "/*",
       "serve": "/index.html",
       "statusCode": 200
@@ -12,11 +24,19 @@
   ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/images/*.{png,jpg,gif}", "/css/*"]
+    "exclude": [
+      "/images/*.{png,jpg,gif}", 
+      "/css/*",
+      "/perfburger-app.umd.js",
+      "/perfburger-app.css",
+      "*.js",
+      "*.css"
+    ]
   },
   "mimeTypes": {
     ".json": "application/json",
     ".js": "application/javascript",
+    ".umd.js": "application/javascript",
     ".mjs": "application/javascript",
     ".ts": "application/javascript",
     ".tsx": "application/javascript",
