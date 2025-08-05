@@ -3,23 +3,17 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react({
-    jsxRuntime: 'classic'
-  })],
+  plugins: [react()],
   base: '/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    target: 'es2015',
+    target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
+    minify: 'esbuild',
     rollupOptions: {
       output: {
         manualChunks: undefined,
-        format: 'es'
       },
     },
   },
-  esbuild: {
-    jsxFactory: 'React.createElement',
-    jsxFragment: 'React.Fragment'
-  }
 })
