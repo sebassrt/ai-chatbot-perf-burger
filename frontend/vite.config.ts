@@ -3,29 +3,24 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react({
-    jsxRuntime: 'classic'
-  })],
-  base: '/',
+  plugins: [react()],
+  base: './',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
     target: 'es2015',
-    rollupOptions: {
-      input: {
-        main: 'src/main.tsx'
-      },
-      output: {
-        manualChunks: undefined,
-        format: 'iife',
-        inlineDynamicImports: true,
-        name: 'PerfBurgerApp',
-        entryFileNames: 'assets/[name]-[hash].js'
-      },
+    minify: true,
+    lib: {
+      entry: 'src/main.tsx',
+      name: 'PerfBurgerApp',
+      formats: ['umd'],
+      fileName: 'perfburger-app'
     },
-  },
-  esbuild: {
-    jsxFactory: 'React.createElement',
-    jsxFragment: 'React.Fragment'
+    rollupOptions: {
+      external: [],
+      output: {
+        globals: {}
+      }
+    }
   }
 })
