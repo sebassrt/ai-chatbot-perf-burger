@@ -3,6 +3,7 @@ import type { AxiosInstance, AxiosResponse } from 'axios';
 import type { AuthResponse, ChatResponse, ApiError } from '../types';
 
 class ApiService {
+  private static instance: ApiService;
   private api: AxiosInstance;
   private token: string | null = null;
 
@@ -33,6 +34,14 @@ class ApiService {
         return Promise.reject(error);
       }
     );
+  }
+
+  // Singleton pattern
+  public static getInstance(): ApiService {
+    if (!ApiService.instance) {
+      ApiService.instance = new ApiService();
+    }
+    return ApiService.instance;
   }
 
   private getBackendUrl(): string {
@@ -121,15 +130,6 @@ class ApiService {
     }
   }
 
-  // Auto-register anonymous user for demo purposes
-  async createAnonymousUser(): Promise<AuthResponse> {
-    const randomId = Math.random().toString(36).substring(2, 15);
-    const email = `demo-${randomId}@perfburger.com`;
-    const password = 'demo123';
-    
-    return this.registerUser(email, password, 'Demo', 'User');
-  }
-
   // Check if user is authenticated
   isAuthenticated(): boolean {
     return !!this.token;
@@ -146,4 +146,5 @@ class ApiService {
   }
 }
 
-export default ApiService;
+// Export singleton instance
+export default ApiService.getInstance();

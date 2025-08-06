@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send, User, Bot } from 'lucide-react';
+import { MessageCircle, X, Send, User, Bot, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import ApiService from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
+import apiService from '../services/api';
 import type { ChatMessage, ChatState } from '../types';
 
 const ChatWidget: React.FC = () => {
+  const { user, isAuthenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [chatState, setChatState] = useState<ChatState>({
     messages: [],
@@ -16,52 +18,41 @@ const ChatWidget: React.FC = () => {
   });
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const apiService = useRef(new ApiService());
 
   useEffect(() => {
-    // Initialize anonymous user if not authenticated
-    if (!apiService.current.isAuthenticated()) {
-      initializeAnonymousUser();
-    } else {
-      setChatState(prev => ({ ...prev, isAuthenticated: true }));
+    // Update chat state when auth state changes
+    setChatState(prev => ({
+      ...prev,
+      isAuthenticated,
+      user,
+    }));
+
+    // Send welcome message when user becomes authenticated
+    if (isAuthenticated && chatState.messages.length === 0) {
+      setTimeout(() => {
+        sendWelcomeMessage();
+      }, 500);
     }
-  }, []);
+  }, [isAuthenticated, user]);
 
   useEffect(() => {
     scrollToBottom();
   }, [chatState.messages]);
 
-  const initializeAnonymousUser = async () => {
-    try {
-      setChatState(prev => ({ ...prev, isLoading: true }));
-      const authResponse = await apiService.current.createAnonymousUser();
-      setChatState(prev => ({
-        ...prev,
-        isAuthenticated: true,
-        user: authResponse.user,
-        isLoading: false,
-      }));
-      
-      // Send welcome message
-      setTimeout(() => {
-        sendWelcomeMessage();
-      }, 500);
-    } catch (error) {
-      console.error('Failed to create anonymous user:', error);
-      setChatState(prev => ({ ...prev, isLoading: false }));
-    }
-  };
-
   const sendWelcomeMessage = () => {
+    const userName = user?.first_name || 'usuario';
+    
     const welcomeMessage: ChatMessage = {
       id: 'welcome-' + Date.now(),
-      content: `¡Hola! 👋 Soy el **asistente virtual** de PerfBurger 🍔
+      content: `¡Hola ${userName}! 👋 Soy el **asistente virtual** de PerfBurger 🍔
 
 Puedo ayudarte con:
 • **Nuestro menú** y precios
 • **Ingredientes** y información nutricional  
 • **Recomendaciones** personalizadas
 • **Horarios** y ubicaciones
+
+*Tus conversaciones se guardan automáticamente.*
 
 *¿En qué puedo ayudarte hoy?*`,
       isUser: false,
@@ -73,6 +64,20 @@ Puedo ayudarte con:
       messages: [welcomeMessage],
     }));
   };
+
+  const clearChat = () => {
+    // Completely reset: clear messages AND session
+    setChatState(prev => ({
+      ...prev,
+      messages: [],
+      sessionId: null,
+    }));
+    setTimeout(() => {
+      sendWelcomeMessage();
+    }, 100);
+  };
+
+
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -99,7 +104,7 @@ Puedo ayudarte con:
     setMessage('');
 
     try {
-      const response = await apiService.current.sendMessage(
+      const response = await apiService.sendMessage(
         userMessage.content,
         chatState.sessionId || undefined
       );
@@ -184,24 +189,83 @@ Puedo ayudarte con:
       {/* Chat Widget */}
       {isOpen && (
         <div className="chat-widget">
-          {/* Header */}
-          <div className="chat-header">
+          {!isAuthenticated ? (
+            /* Unauthenticated State */
+            <div className="chat-auth-required">
+              <div className="chat-header">
+                <div className="chat-header-info">
+                  <div className="chat-avatar">
+                    <Bot size={20} />
+                  </div>
+                  <div className="chat-header-text">
+                    <h3>PerfBurger Assistant</h3>
+                    <p>Autenticación requerida</p>
+                  </div>
+                </div>
+                <div className="chat-header-actions">
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="chat-close-button"
+                    aria-label="Cerrar chat"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="chat-auth-message">
+                <div className="auth-required-content">
+                  <Bot size={48} className="auth-icon" />
+                  <h4>¡Hola! 👋</h4>
+                  <p>Para usar nuestro asistente virtual de PerfBurger, necesitas registrarte o iniciar sesión.</p>
+                  <p>Esto nos permite:</p>
+                  <ul>
+                    <li>Guardar tu historial de conversaciones</li>
+                    <li>Ofrecerte recomendaciones personalizadas</li>
+                    <li>Recordar tus preferencias</li>
+                  </ul>
+                  <p className="auth-cta">
+                    <strong>Usa el botón "Registrarse" en la parte superior de la página para comenzar.</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Authenticated State */
+            <>
+              {/* Header */}
+              <div className="chat-header">
             <div className="chat-header-info">
               <div className="chat-avatar">
                 <Bot size={20} />
               </div>
               <div className="chat-header-text">
                 <h3>PerfBurger Assistant</h3>
-                <p>En línea • Respuesta inmediata</p>
+                <p>
+                  Conectado • 
+                  {chatState.sessionId ? ' Sesión activa' : ' Nueva conversación'}
+                </p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="chat-close-button"
-              aria-label="Cerrar chat"
-            >
-              <X size={20} />
-            </button>
+            <div className="chat-header-actions">
+              {chatState.messages.length > 0 && (
+                <button
+                  onClick={clearChat}
+                  className="chat-action-button"
+                  title="Limpiar chat"
+                  aria-label="Limpiar chat"
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
+              <button
+                onClick={() => setIsOpen(false)}
+                className="chat-close-button"
+                aria-label="Cerrar chat"
+              >
+                <X size={20} />
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
@@ -268,6 +332,8 @@ Puedo ayudarte con:
               <Send />
             </button>
           </div>
+            </>
+          )}
         </div>
       )}
     </div>
