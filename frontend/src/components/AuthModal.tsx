@@ -54,11 +54,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
       return false;
     }
 
-    if (!formData.email.includes('@')) {
-      setError('Por favor ingresa un email válido');
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Por favor ingresa un email válido (ejemplo: usuario@correo.com)');
       return false;
     }
 
+    // Password validation
     if (formData.password.length < 6) {
       setError('La contraseña debe tener al menos 6 caracteres');
       return false;
@@ -66,12 +69,33 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
 
     if (mode === 'register') {
       if (!formData.firstName || !formData.lastName) {
-        setError('Por favor completa todos los campos obligatorios');
+        setError('Por favor completa tu nombre y apellido');
+        return false;
+      }
+
+      if (formData.firstName.length < 2) {
+        setError('El nombre debe tener al menos 2 caracteres');
+        return false;
+      }
+
+      if (formData.lastName.length < 2) {
+        setError('El apellido debe tener al menos 2 caracteres');
+        return false;
+      }
+
+      if (!formData.confirmPassword) {
+        setError('Por favor confirma tu contraseña');
         return false;
       }
 
       if (formData.password !== formData.confirmPassword) {
-        setError('Las contraseñas no coinciden');
+        setError('Las contraseñas no coinciden. Por favor verifica que sean iguales.');
+        return false;
+      }
+
+      // Strong password validation for registration
+      if (formData.password.length < 8) {
+        setError('Para mayor seguridad, la contraseña debe tener al menos 8 caracteres');
         return false;
       }
     }
@@ -95,7 +119,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
       }
       handleClose();
     } catch (error: any) {
-      setError(error.message || 'Ha ocurrido un error. Por favor intenta de nuevo.');
+      console.error('Auth error:', error);
+      
+      // Check if it's our custom ApiError with specific messages
+      if (error.message && typeof error.message === 'string' && error.error) {
+        // This is our ApiError object from the API service
+        setError(error.message);
+      } else if (error.error && typeof error.error === 'string') {
+        // Fallback to error property
+        setError(error.error);
+      } else if (error.message && typeof error.message === 'string') {
+        // Generic axios error message
+        setError(error.message);
+      } else {
+        setError('Ha ocurrido un error inesperado. Por favor intenta de nuevo.');
+      }
     } finally {
       setIsLoading(false);
     }

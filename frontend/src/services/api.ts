@@ -137,11 +137,78 @@ class ApiService {
 
   private handleError(error: any): ApiError {
     if (error.response?.data) {
-      return error.response.data;
+      const errorData = error.response.data;
+      
+      // Handle specific error cases
+      if (error.response.status === 401) {
+        return {
+          error: 'Credenciales incorrectas',
+          message: 'Email o contraseña incorrectos. Por favor verifica tus datos e intenta de nuevo.',
+        };
+      }
+      
+      if (error.response.status === 409) {
+        return {
+          error: 'Usuario ya existe',
+          message: 'Ya existe una cuenta con este email. Intenta iniciar sesión o usa otro email.',
+        };
+      }
+      
+      if (error.response.status === 400) {
+        // Parse validation errors
+        if (errorData.error && typeof errorData.error === 'string') {
+          if (errorData.error.toLowerCase().includes('email')) {
+            return {
+              error: 'Email inválido',
+              message: 'Por favor ingresa un email válido.',
+            };
+          }
+          if (errorData.error.toLowerCase().includes('password')) {
+            return {
+              error: 'Contraseña inválida',
+              message: 'La contraseña debe tener al menos 6 caracteres.',
+            };
+          }
+        }
+        
+        return {
+          error: 'Datos inválidos',
+          message: errorData.message || 'Por favor verifica que todos los campos estén correctos.',
+        };
+      }
+      
+      if (error.response.status === 422) {
+        return {
+          error: 'Datos de validación incorrectos',
+          message: 'Por favor verifica que todos los campos estén completos y sean válidos.',
+        };
+      }
+      
+      if (error.response.status === 500) {
+        return {
+          error: 'Error del servidor',
+          message: 'Ocurrió un problema en el servidor. Por favor intenta de nuevo más tarde.',
+        };
+      }
+      
+      // Return the original error message if available
+      return {
+        error: errorData.error || 'Error',
+        message: errorData.message || 'Ha ocurrido un error inesperado.',
+      };
     }
+    
+    // Network errors
+    if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
+      return {
+        error: 'Error de conexión',
+        message: 'No se pudo conectar con el servidor. Verifica tu conexión a internet.',
+      };
+    }
+    
     return {
-      error: 'Network error',
-      message: error.message || 'Unable to connect to server',
+      error: 'Error de red',
+      message: error.message || 'No se pudo completar la operación. Verifica tu conexión.',
     };
   }
 }
