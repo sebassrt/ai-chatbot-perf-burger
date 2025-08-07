@@ -27,14 +27,14 @@ const UserProfile: React.FC = () => {
               className="auth-button login"
             >
               <User size={16} />
-              Iniciar Sesión
+              Sign In
             </button>
             <button
               onClick={() => handleAuthClick('register')}
               className="auth-button register"
             >
               <User size={16} />
-              Registrarse
+              Sign Up
             </button>
           </div>
         </div>
@@ -59,7 +59,7 @@ const UserProfile: React.FC = () => {
               {`${user?.first_name} ${user?.last_name}`}
             </span>
             <span className="user-status">
-              Conectado
+              Connected
             </span>
           </div>
         </div>
@@ -68,7 +68,7 @@ const UserProfile: React.FC = () => {
           <button
             onClick={handleLogout}
             className="logout-button"
-            title="Cerrar sesión"
+            title="Sign out"
           >
             <LogOut size={16} />
           </button>

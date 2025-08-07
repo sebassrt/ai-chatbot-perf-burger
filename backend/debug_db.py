@@ -34,6 +34,19 @@ def check_database():
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
             tables = cursor.fetchall()
             print(f"Tables in database: {[table[0] for table in tables]}")
+            
+            # Check for orders
+            cursor.execute("SELECT COUNT(*) FROM 'order';")
+            order_count = cursor.fetchone()[0]
+            print(f"\nOrders in database: {order_count}")
+            
+            if order_count > 0:
+                cursor.execute("SELECT id, status, total_amount, created_at FROM 'order' ORDER BY created_at DESC LIMIT 5;")
+                orders = cursor.fetchall()
+                print("Recent orders:")
+                for order in orders:
+                    print(f"  - ID: {order[0]}, Status: {order[1]}, Total: ${order[2]}, Created: {order[3]}")
+            
             conn.close()
             print("✅ Direct SQLite connection successful!")
         except Exception as e:

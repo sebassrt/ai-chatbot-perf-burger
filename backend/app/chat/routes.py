@@ -72,6 +72,15 @@ def chat():
         )
         logging.info(f"LLM response generated: {ai_response[:50]}...")
         
+        # Check if we should suggest order creation (only for authenticated users)
+        # NOTE: Disabled automatic suggestions since LLM already handles this intelligently
+        # should_suggest = llm_client.should_suggest_order_creation(user_message)
+        # user_id = get_jwt_identity() if hasattr(get_jwt_identity, '__call__') else None
+        
+        # if should_suggest and user_id:
+        #     logging.info("LLM detected order intent, adding suggestion to response")
+        #     ai_response += "\n\n🛒 **Would you like to create an order?**\n\nI see that you mentioned some products from our menu. I can analyze our conversation and create an order for you. Just click the shopping cart button (🛒) in the top right corner of the chat."
+        
         # Save AI response
         ai_msg = ChatMessage()
         ai_msg.session_id = chat_session.id

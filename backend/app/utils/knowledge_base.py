@@ -57,7 +57,7 @@ class KnowledgeBase:
             logging.error(f"Failed to load {filepath}: {str(e)}")
             return {}
     
-    def retrieve(self, query: str, max_results: int = 3) -> List[Dict[str, Any]]:
+    def retrieve(self, query: str, max_results: int = 10) -> List[Dict[str, Any]]:
         """
         Retrieve relevant knowledge base entries for a query
         
@@ -74,6 +74,34 @@ class KnowledgeBase:
         
         try:
             query_lower = query.lower()
+            
+            # Check if user is asking for full menu
+            full_menu_triggers = ['menu', 'what\'s on the menu', 'show me the menu', 'see the menu', 'full menu']
+            if any(trigger in query_lower for trigger in full_menu_triggers):
+                return self.get_full_menu()
+            
+            # Check if user is asking for drinks specifically
+            drinks_triggers = ['drinks', 'what drinks', 'all drinks', 'beverages', 'drink options']
+            if any(trigger in query_lower for trigger in drinks_triggers):
+                return self.get_all_drinks()
+            
+            # Spanish to English term mapping (keep for backwards compatibility)
+            spanish_to_english = {
+                'bebidas': 'drinks',
+                'hamburguesas': 'burgers', 
+                'acompañamientos': 'sides',
+                'papas': 'fries',
+                'malteada': 'milkshake',
+                'gaseosa': 'soda',
+                'refresco': 'soda'
+            }
+            
+            # Replace Spanish terms with English equivalents
+            original_query = query_lower
+            for spanish, english in spanish_to_english.items():
+                if spanish in query_lower:
+                    query_lower = query_lower.replace(spanish, english)
+            
             relevant_items = []
             
             # Search menu items
@@ -272,3 +300,80 @@ class KnowledgeBase:
                 'refund_policy': 'We offer full refunds for orders that are significantly delayed or incorrect.'
             }
         }
+    
+    def get_full_menu(self) -> List[Dict[str, Any]]:
+        """Get complete menu for display when user asks for full menu"""
+        self._ensure_loaded()
+        if not self.knowledge_data:
+            return []
+        
+        results = []
+        menu_data = self.knowledge_data.get('menu', {})
+        
+        # Add all burgers
+        burgers = menu_data.get('burgers', [])
+        for burger in burgers:
+            results.append({
+                'type': 'menu_item',
+                'category': 'burger',
+                'title': burger.get('name', 'Unknown Burger'),
+                'content': self._format_menu_item(burger),
+                'score': 1.0
+            })
+        
+        # Add all sides
+        sides = menu_data.get('sides', [])
+        for side in sides:
+            results.append({
+                'type': 'menu_item', 
+                'category': 'sides',
+                'title': side.get('name', 'Unknown Side'),
+                'content': self._format_menu_item(side),
+                'score': 1.0
+            })
+        
+        # Add all drinks
+        drinks = menu_data.get('drinks', [])
+        for drink in drinks:
+            results.append({
+                'type': 'menu_item',
+                'category': 'drinks', 
+                'title': drink.get('name', 'Unknown Drink'),
+                'content': self._format_menu_item(drink),
+                'score': 1.0
+            })
+        
+        # Add combos if they exist
+        combos = menu_data.get('combos', [])
+        for combo in combos:
+            results.append({
+                'type': 'menu_item',
+                'category': 'combos',
+                'title': combo.get('name', 'Unknown Combo'),
+                'content': self._format_menu_item(combo),
+                'score': 1.0
+            })
+        
+        return results
+
+    def get_all_drinks(self) -> List[Dict[str, Any]]:
+        """Get all drinks from the menu when user asks specifically about drinks"""
+        self._ensure_loaded()
+        if not self.knowledge_data:
+            return []
+        
+        results = []
+        menu_data = self.knowledge_data.get('menu', {})
+        
+        # Add all drinks with high relevance score
+        drinks = menu_data.get('drinks', [])
+        for drink in drinks:
+            results.append({
+                'type': 'menu_item',
+                'category': 'drinks',
+                'title': drink.get('name', 'Unknown Drink'),
+                'content': self._format_menu_item(drink),
+                'score': 1.0
+            })
+        
+        return results

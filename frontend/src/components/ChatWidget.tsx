@@ -40,21 +40,21 @@ const ChatWidget: React.FC = () => {
   }, [chatState.messages]);
 
   const sendWelcomeMessage = () => {
-    const userName = user?.first_name || 'usuario';
+    const userName = user?.first_name || 'user';
     
     const welcomeMessage: ChatMessage = {
       id: 'welcome-' + Date.now(),
-      content: `¡Hola ${userName}! 👋 Soy el **asistente virtual** de PerfBurger 🍔
+      content: `Hello ${userName}! 👋 I'm the **virtual assistant** for PerfBurger 🍔
 
-Puedo ayudarte con:
-• **Nuestro menú** y precios
-• **Ingredientes** y información nutricional  
-• **Recomendaciones** personalizadas
-• **Horarios** y ubicaciones
+I can help you with:
+• **Our menu** and prices
+• **Ingredients** and nutritional information  
+• **Personalized recommendations**
+• **Hours** and locations
 
-*Tus conversaciones se guardan automáticamente.*
+*Your conversations are automatically saved.*
 
-*¿En qué puedo ayudarte hoy?*`,
+*How can I help you today?*`,
       isUser: false,
       timestamp: new Date(),
     };
@@ -79,36 +79,39 @@ Puedo ayudarte con:
 
   const createOrder = async () => {
     if (!chatState.sessionId) {
-      addBotMessage("Lo siento, necesitas tener una conversación activa para crear un pedido. ¡Escríbeme algo primero!");
+      addBotMessage("Sorry, you need to have an active conversation to create an order. Write me something first!");
       return;
     }
 
     try {
       setChatState(prev => ({ ...prev, isLoading: true }));
       
-      addBotMessage("🔍 Analizando nuestra conversación para crear tu pedido...");
+      addBotMessage("🔍 Analyzing our conversation to create your order...");
       
       const response: CreateOrderResponse = await apiService.createOrder(chatState.sessionId);
       
-      const orderSummary = `🎉 **¡Pedido creado exitosamente!**
+      const orderSummary = `🎉 **Order created successfully!**
 
-**ID del Pedido:** ${response.order.id}
+**Order ID:** ${response.order.id}
 **Total:** $${response.order.total_amount.toFixed(2)}
-**Estado:** ${response.order.status_description || 'Recibido'}
-**Tiempo estimado:** ${response.order.estimated_delivery ? new Date(response.order.estimated_delivery).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '30-40 minutos'}
+**Status:** ${response.order.status_description || 'Received'}
+**Estimated time:** ${response.order.estimated_delivery ? new Date(response.order.estimated_delivery).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '30-40 minutes'}
 
-**Artículos pedidos:**
+**Ordered items:**
 ${response.order.items.map(item => 
   `• ${item.quantity}x ${item.name} - $${(item.price * item.quantity).toFixed(2)}${item.customizations.length > 0 ? ` (${item.customizations.join(', ')})` : ''}`
 ).join('\n')}
 
-Tu pedido está siendo procesado. ¡Te mantendremos informado del progreso! 🍔✨`;
+${response.unavailable_items && response.unavailable_items.length > 0 ? 
+  `⚠️ **Unavailable products:** ${response.unavailable_items.join(', ')}\n\nThese products are not in our current menu. If you have any questions about our available products, please ask me!\n\n` : 
+  ''
+}Your order is being processed. We'll keep you informed of the progress! 🍔✨`;
 
       addBotMessage(orderSummary);
       
     } catch (error: any) {
       console.error('Error creating order:', error);
-      addBotMessage(`❌ **Error al crear el pedido**\n\n${error.message || 'No se pudo crear el pedido. Por favor intenta de nuevo.'}`);
+      addBotMessage(`❌ **Error creating order**\n\n${error.message || 'Could not create order. Please try again.'}`);
     } finally {
       setChatState(prev => ({ ...prev, isLoading: false }));
     }
@@ -118,29 +121,29 @@ Tu pedido está siendo procesado. ¡Te mantendremos informado del progreso! 🍔
     try {
       setChatState(prev => ({ ...prev, isLoading: true }));
       
-      addBotMessage(`🔍 Buscando información del pedido ${orderId}...`);
+      addBotMessage(`🔍 Looking up order information for ${orderId}...`);
       
       const response: OrderLookupResponse = await apiService.lookupOrder(orderId);
       
-      const orderInfo = `📋 **Información del Pedido ${response.order.id}**
+      const orderInfo = `📋 **Order Information ${response.order.id}**
 
-**Estado:** ${response.order.status_description}
+**Status:** ${response.order.status_description}
 **Total:** $${response.order.total_amount.toFixed(2)}
-**Creado:** ${new Date(response.order.created_at).toLocaleDateString('es-ES')} a las ${new Date(response.order.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-${response.order.estimated_delivery ? `**Entrega estimada:** ${new Date(response.order.estimated_delivery).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}` : ''}
+**Created:** ${new Date(response.order.created_at).toLocaleDateString('en-US')} at ${new Date(response.order.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+${response.order.estimated_delivery ? `**Estimated delivery:** ${new Date(response.order.estimated_delivery).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}` : ''}
 
-**Artículos:**
+**Items:**
 ${response.order.items.map(item => 
   `• ${item.quantity}x ${item.name} - $${(item.price * item.quantity).toFixed(2)}${item.customizations.length > 0 ? ` (${item.customizations.join(', ')})` : ''}`
 ).join('\n')}
 
-${response.order.driver_name ? `**Conductor:** ${response.order.driver_name}${response.order.driver_phone ? ` (${response.order.driver_phone})` : ''}` : ''}`;
+${response.order.driver_name ? `**Driver:** ${response.order.driver_name}${response.order.driver_phone ? ` (${response.order.driver_phone})` : ''}` : ''}`;
 
       addBotMessage(orderInfo);
       
     } catch (error: any) {
       console.error('Error looking up order:', error);
-      addBotMessage(`❌ **No se pudo encontrar el pedido ${orderId}**\n\n${error.message || 'Verifica que el ID del pedido sea correcto y que sea tu pedido.'}`);
+      addBotMessage(`❌ **Could not find order ${orderId}**\n\n${error.message || 'Please verify that the order ID is correct and that it is your order.'}`);
     } finally {
       setChatState(prev => ({ ...prev, isLoading: false }));
     }
@@ -162,8 +165,8 @@ ${response.order.driver_name ? `**Conductor:** ${response.order.driver_name}${re
 
   const shouldSuggestOrderCreation = (message: string): boolean => {
     const orderKeywords = [
-      'quiero', 'ordenar', 'pedir', 'comprar', 'burger', 'hamburguesa', 
-      'papas', 'fries', 'bebida', 'drink', 'combo', 'menú'
+      'want', 'order', 'buy', 'burger', 'hamburger', 
+      'fries', 'drink', 'combo', 'menu'
     ];
     
     const messageLower = message.toLowerCase();
@@ -181,8 +184,8 @@ ${response.order.driver_name ? `**Conductor:** ${response.order.driver_name}${re
 
     const trimmedMessage = message.trim();
     
-    // Check for order lookup pattern (e.g., "check order PB123456")
-    const orderLookupMatch = trimmedMessage.match(/(?:check|ver|consultar|buscar)\s+(?:order|pedido|orden)\s+(PB\d{6})/i);
+    // Check for order lookup pattern (more flexible matching for order IDs)
+    const orderLookupMatch = trimmedMessage.match(/\b(PB\d{6})\b/i);
     if (orderLookupMatch) {
       const orderId = orderLookupMatch[1];
       
@@ -244,28 +247,29 @@ ${response.order.driver_name ? `**Conductor:** ${response.order.driver_name}${re
       }));
 
       // Check if we should suggest order creation
-      if (shouldSuggestOrderCreation(trimmedMessage)) {
-        setTimeout(() => {
-          const suggestionMessage: ChatMessage = {
-            id: 'suggestion-' + Date.now(),
-            content: `🍔 **¿Te gustaría crear un pedido?**\n\nVeo que mencionaste algunos productos. Puedo analizar nuestra conversación y crear un pedido para ti.\n\n*Haz clic en el botón de carrito (🛒) en la esquina superior derecha para crear tu pedido.*`,
-            isUser: false,
-            timestamp: new Date(),
-          };
+      // NOTE: Disabled automatic suggestions since LLM already handles this intelligently
+      // if (shouldSuggestOrderCreation(trimmedMessage)) {
+      //   setTimeout(() => {
+      //     const suggestionMessage: ChatMessage = {
+      //       id: 'suggestion-' + Date.now(),
+      //       content: `🍔 **Would you like to create an order?**\n\nI see that you mentioned some products. I can analyze our conversation and create an order for you.\n\n*Click the cart button (🛒) in the top right corner to create your order.*`,
+      //       isUser: false,
+      //       timestamp: new Date(),
+      //     };
           
-          setChatState(prev => ({
-            ...prev,
-            messages: [...prev.messages, suggestionMessage],
-          }));
-        }, 1000);
-      }
+      //     setChatState(prev => ({
+      //       ...prev,
+      //       messages: [...prev.messages, suggestionMessage],
+      //     }));
+      //   }, 1000);
+      // }
       
     } catch (error: any) {
       console.error('Failed to send message:', error);
       
       const errorMessage: ChatMessage = {
         id: 'error-' + Date.now(),
-        content: 'Lo siento, hubo un problema al enviar tu mensaje. Por favor intenta de nuevo. 🔄',
+        content: 'Sorry, there was a problem sending your message. Please try again. 🔄',
         isUser: false,
         timestamp: new Date(),
       };
@@ -287,7 +291,7 @@ ${response.order.driver_name ? `**Conductor:** ${response.order.driver_name}${re
   };
 
   const formatTime = (timestamp: Date) => {
-    return timestamp.toLocaleTimeString('es-ES', {
+    return timestamp.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
     });
@@ -304,7 +308,7 @@ ${response.order.driver_name ? `**Conductor:** ${response.order.driver_name}${re
           <span></span>
           <span></span>
         </div>
-        <span className="typing-text">PerfBurger está escribiendo...</span>
+        <span className="typing-text">PerfBurger is typing...</span>
       </div>
     </div>
   );
@@ -316,7 +320,7 @@ ${response.order.driver_name ? `**Conductor:** ${response.order.driver_name}${re
         <button
           onClick={() => setIsOpen(true)}
           className="chat-toggle-button"
-          aria-label="Abrir chat"
+          aria-label="Open chat"
         >
           <MessageCircle />
         </button>
@@ -335,14 +339,14 @@ ${response.order.driver_name ? `**Conductor:** ${response.order.driver_name}${re
                   </div>
                   <div className="chat-header-text">
                     <h3>PerfBurger Assistant</h3>
-                    <p>Autenticación requerida</p>
+                    <p>Authentication required</p>
                   </div>
                 </div>
                 <div className="chat-header-actions">
                   <button
                     onClick={() => setIsOpen(false)}
                     className="chat-close-button"
-                    aria-label="Cerrar chat"
+                    aria-label="Close chat"
                   >
                     <X size={20} />
                   </button>
@@ -352,16 +356,16 @@ ${response.order.driver_name ? `**Conductor:** ${response.order.driver_name}${re
               <div className="chat-auth-message">
                 <div className="auth-required-content">
                   <Bot size={48} className="auth-icon" />
-                  <h4>¡Hola! 👋</h4>
-                  <p>Para usar nuestro asistente virtual de PerfBurger, necesitas registrarte o iniciar sesión.</p>
-                  <p>Esto nos permite:</p>
+                  <h4>Hello! 👋</h4>
+                  <p>To use our PerfBurger virtual assistant, you need to register or log in.</p>
+                  <p>This allows us to:</p>
                   <ul>
-                    <li>Guardar tu historial de conversaciones</li>
-                    <li>Ofrecerte recomendaciones personalizadas</li>
-                    <li>Recordar tus preferencias</li>
+                    <li>Save your conversation history</li>
+                    <li>Offer you personalized recommendations</li>
+                    <li>Remember your preferences</li>
                   </ul>
                   <p className="auth-cta">
-                    <strong>Usa el botón "Registrarse" en la parte superior de la página para comenzar.</strong>
+                    <strong>Use the "Sign Up" button at the top of the page to get started.</strong>
                   </p>
                 </div>
               </div>
@@ -378,8 +382,8 @@ ${response.order.driver_name ? `**Conductor:** ${response.order.driver_name}${re
               <div className="chat-header-text">
                 <h3>PerfBurger Assistant</h3>
                 <p>
-                  Conectado • 
-                  {chatState.sessionId ? ' Sesión activa' : ' Nueva conversación'}
+                  Connected • 
+                  {chatState.sessionId ? ' Active session' : ' New conversation'}
                 </p>
               </div>
             </div>
@@ -388,8 +392,8 @@ ${response.order.driver_name ? `**Conductor:** ${response.order.driver_name}${re
                 <button
                   onClick={createOrder}
                   className="chat-action-button order-button"
-                  title="Crear pedido"
-                  aria-label="Crear pedido"
+                  title="Create order"
+                  aria-label="Create order"
                   disabled={chatState.isLoading}
                 >
                   <ShoppingCart size={16} />
@@ -399,8 +403,8 @@ ${response.order.driver_name ? `**Conductor:** ${response.order.driver_name}${re
                 <button
                   onClick={clearChat}
                   className="chat-action-button"
-                  title="Limpiar chat"
-                  aria-label="Limpiar chat"
+                  title="Clear chat"
+                  aria-label="Clear chat"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -408,7 +412,7 @@ ${response.order.driver_name ? `**Conductor:** ${response.order.driver_name}${re
               <button
                 onClick={() => setIsOpen(false)}
                 className="chat-close-button"
-                aria-label="Cerrar chat"
+                aria-label="Close chat"
               >
                 <X size={20} />
               </button>
@@ -465,7 +469,7 @@ ${response.order.driver_name ? `**Conductor:** ${response.order.driver_name}${re
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Escribe tu mensaje..."
+              placeholder="Type your message..."
               className="chat-input"
               disabled={chatState.isLoading}
               rows={1}
@@ -474,7 +478,7 @@ ${response.order.driver_name ? `**Conductor:** ${response.order.driver_name}${re
               onClick={handleSendMessage}
               disabled={!message.trim() || chatState.isLoading}
               className="chat-send-button"
-              aria-label="Enviar mensaje"
+              aria-label="Send message"
             >
               <Send />
             </button>

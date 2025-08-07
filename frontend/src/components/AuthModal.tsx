@@ -57,45 +57,45 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setError('Por favor ingresa un email válido (ejemplo: usuario@correo.com)');
+      setError('Please enter a valid email (example: user@email.com)');
       return false;
     }
 
     // Password validation
     if (formData.password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
+      setError('Password must be at least 6 characters long');
       return false;
     }
 
     if (mode === 'register') {
       if (!formData.firstName || !formData.lastName) {
-        setError('Por favor completa tu nombre y apellido');
+        setError('Please complete your first and last name');
         return false;
       }
 
       if (formData.firstName.length < 2) {
-        setError('El nombre debe tener al menos 2 caracteres');
+        setError('First name must be at least 2 characters long');
         return false;
       }
 
       if (formData.lastName.length < 2) {
-        setError('El apellido debe tener al menos 2 caracteres');
+        setError('Last name must be at least 2 characters long');
         return false;
       }
 
       if (!formData.confirmPassword) {
-        setError('Por favor confirma tu contraseña');
+        setError('Please confirm your password');
         return false;
       }
 
       if (formData.password !== formData.confirmPassword) {
-        setError('Las contraseñas no coinciden. Por favor verifica que sean iguales.');
+        setError('Passwords do not match. Please verify they are the same.');
         return false;
       }
 
       // Strong password validation for registration
       if (formData.password.length < 8) {
-        setError('Para mayor seguridad, la contraseña debe tener al menos 8 caracteres');
+        setError('For better security, password must be at least 8 characters long');
         return false;
       }
     }
@@ -132,7 +132,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         // Generic axios error message
         setError(error.message);
       } else {
-        setError('Ha ocurrido un error inesperado. Por favor intenta de nuevo.');
+        setError('An unexpected error occurred. Please try again.');
       }
     } finally {
       setIsLoading(false);
@@ -149,7 +149,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
       <div className="auth-modal" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="auth-modal-header">
-          <h2>{mode === 'login' ? 'Iniciar Sesión' : 'Registrarse'}</h2>
+          <h2>{mode === 'login' ? 'Sign In' : 'Sign Up'}</h2>
           <button onClick={handleClose} className="auth-modal-close" aria-label="Cerrar">
             <X size={20} />
           </button>
@@ -161,7 +161,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
             <>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="firstName">Nombre *</label>
+                  <label htmlFor="firstName">First Name *</label>
                   <div className="input-with-icon">
                     <UserIcon size={18} />
                     <input
@@ -169,13 +169,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                       type="text"
                       value={formData.firstName}
                       onChange={(e) => handleInputChange('firstName', e.target.value)}
-                      placeholder="Tu nombre"
+                      placeholder="Your first name"
                       required
                     />
                   </div>
                 </div>
                 <div className="form-group">
-                  <label htmlFor="lastName">Apellido *</label>
+                  <label htmlFor="lastName">Last Name *</label>
                   <div className="input-with-icon">
                     <UserIcon size={18} />
                     <input
@@ -183,7 +183,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                       type="text"
                       value={formData.lastName}
                       onChange={(e) => handleInputChange('lastName', e.target.value)}
-                      placeholder="Tu apellido"
+                      placeholder="Your last name"
                       required
                     />
                   </div>
@@ -201,14 +201,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                placeholder="tu@email.com"
+                placeholder="your@email.com"
                 required
               />
             </div>
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Contraseña *</label>
+            <label htmlFor="password">Password *</label>
             <div className="input-with-icon">
               <Lock size={18} />
               <input
@@ -216,14 +216,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                 type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
-                placeholder="Tu contraseña"
+                placeholder="Your password"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="password-toggle"
-                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -232,7 +232,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
 
           {mode === 'register' && (
             <div className="form-group">
-              <label htmlFor="confirmPassword">Confirmar Contraseña *</label>
+              <label htmlFor="confirmPassword">Confirm Password *</label>
               <div className="input-with-icon">
                 <Lock size={18} />
                 <input
@@ -240,14 +240,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
                   onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                  placeholder="Confirma tu contraseña"
+                  placeholder="Confirm your password"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="password-toggle"
-                  aria-label={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                 >
                   {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -266,7 +266,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
             className="auth-submit-button"
             disabled={isLoading}
           >
-            {isLoading ? 'Cargando...' : (mode === 'login' ? 'Iniciar Sesión' : 'Registrarse')}
+            {isLoading ? 'Loading...' : (mode === 'login' ? 'Sign In' : 'Sign Up')}
           </button>
         </form>
 
@@ -274,16 +274,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         <div className="auth-mode-switch">
           {mode === 'login' ? (
             <p>
-              ¿No tienes cuenta?{' '}
+              Don't have an account?{' '}
               <button type="button" onClick={() => handleModeSwitch('register')}>
-                Regístrate aquí
+                Sign up here
               </button>
             </p>
           ) : (
             <p>
-              ¿Ya tienes cuenta?{' '}
+              Already have an account?{' '}
               <button type="button" onClick={() => handleModeSwitch('login')}>
-                Inicia sesión aquí
+                Sign in here
               </button>
             </p>
           )}

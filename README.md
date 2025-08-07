@@ -97,7 +97,11 @@ cp .env.example .env
 
 5. Initialize database:
 ```bash
+# For first time setup:
 python init_db.py
+
+# If you need to recreate schema (after model changes):
+python recreate_db.py
 ```
 
 6. Run the application:

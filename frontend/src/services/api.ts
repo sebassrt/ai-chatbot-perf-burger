@@ -172,15 +172,15 @@ class ApiService {
       // Handle specific error cases
       if (error.response.status === 401) {
         return {
-          error: 'Credenciales incorrectas',
-          message: 'Email o contraseña incorrectos. Por favor verifica tus datos e intenta de nuevo.',
+          error: 'Invalid credentials',
+          message: 'Incorrect email or password. Please verify your information and try again.',
         };
       }
       
       if (error.response.status === 409) {
         return {
-          error: 'Usuario ya existe',
-          message: 'Ya existe una cuenta con este email. Intenta iniciar sesión o usa otro email.',
+          error: 'User already exists',
+          message: 'An account with this email already exists. Try logging in or use a different email.',
         };
       }
       
@@ -189,56 +189,56 @@ class ApiService {
         if (errorData.error && typeof errorData.error === 'string') {
           if (errorData.error.toLowerCase().includes('email')) {
             return {
-              error: 'Email inválido',
-              message: 'Por favor ingresa un email válido.',
+              error: 'Invalid email',
+              message: 'Please enter a valid email address.',
             };
           }
           if (errorData.error.toLowerCase().includes('password')) {
             return {
-              error: 'Contraseña inválida',
-              message: 'La contraseña debe tener al menos 6 caracteres.',
+              error: 'Invalid password',
+              message: 'Password must be at least 6 characters long.',
             };
           }
         }
         
         return {
-          error: 'Datos inválidos',
-          message: errorData.message || 'Por favor verifica que todos los campos estén correctos.',
+          error: 'Invalid data',
+          message: errorData.message || 'Please verify that all fields are correct.',
         };
       }
       
       if (error.response.status === 422) {
         return {
-          error: 'Datos de validación incorrectos',
-          message: 'Por favor verifica que todos los campos estén completos y sean válidos.',
+          error: 'Validation error',
+          message: 'Please verify that all fields are complete and valid.',
         };
       }
       
       if (error.response.status === 500) {
         return {
-          error: 'Error del servidor',
-          message: 'Ocurrió un problema en el servidor. Por favor intenta de nuevo más tarde.',
+          error: 'Server error',
+          message: 'A server error occurred. Please try again later.',
         };
       }
       
       // Return the original error message if available
       return {
         error: errorData.error || 'Error',
-        message: errorData.message || 'Ha ocurrido un error inesperado.',
+        message: errorData.message || 'An unexpected error occurred.',
       };
     }
     
     // Network errors
     if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
       return {
-        error: 'Error de conexión',
-        message: 'No se pudo conectar con el servidor. Verifica tu conexión a internet.',
+        error: 'Connection error',
+        message: 'Could not connect to the server. Please check your internet connection.',
       };
     }
     
     return {
-      error: 'Error de red',
-      message: error.message || 'No se pudo completar la operación. Verifica tu conexión.',
+      error: 'Network error',
+      message: error.message || 'Could not complete the operation. Please check your connection.',
     };
   }
 }

@@ -81,6 +81,10 @@ export interface Order {
 export interface CreateOrderResponse {
   message: string;
   order: Order;
+  analysis_method?: string;
+  llm_confidence?: number;
+  unavailable_items?: string[];
+  llm_reasoning?: string;
 }
 
 export interface OrderLookupResponse {

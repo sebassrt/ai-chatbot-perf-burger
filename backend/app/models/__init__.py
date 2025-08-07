@@ -41,7 +41,7 @@ class Order(db.Model):
     status = db.Column(db.String(20), nullable=False, default='received')  # received, preparing, cooking, ready, out_for_delivery, delivered, cancelled
     items = db.Column(db.Text, nullable=False)  # JSON string of ordered items
     total_amount = db.Column(db.Float, nullable=False)
-    delivery_address = db.Column(db.Text, nullable=False)
+    delivery_address = db.Column(db.Text, nullable=True)  # Made nullable since addresses not required
     estimated_delivery = db.Column(db.DateTime, nullable=True)
     actual_delivery = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

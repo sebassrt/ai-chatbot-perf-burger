@@ -18,33 +18,33 @@ function App() {
           <div className="hero-section">
             <h1 className="hero-title">🍔 PerfBurger</h1>
             <p className="hero-subtitle">
-              Las hamburguesas artesanales más deliciosas de la ciudad
+              The most delicious artisanal burgers in the city
             </p>
           </div>
           
           {/* Main Content Card */}
           <div className="content-card">
-            <h2 className="content-title">¡Bienvenido a PerfBurger!</h2>
+            <h2 className="content-title">Welcome to PerfBurger!</h2>
             <p className="content-description">
-              Descubre nuestro exquisito menú de hamburguesas artesanales preparadas 
-              con ingredientes premium y frescos de la más alta calidad.
+              Discover our exquisite menu of artisanal burgers prepared 
+              with premium, fresh ingredients of the highest quality.
             </p>
             
             {/* Features Grid */}
             <div className="features-grid">
               <div className="feature-card">
                 <span className="feature-icon">🥩</span>
-                <h3 className="feature-title">Carne Premium</h3>
+                <h3 className="feature-title">Premium Meat</h3>
                 <p className="feature-description">
-                  Carne de res grass-fed 100% natural, seleccionada cuidadosamente
+                  100% natural grass-fed beef, carefully selected
                 </p>
               </div>
               
               <div className="feature-card">
                 <span className="feature-icon">🥬</span>
-                <h3 className="feature-title">Ingredientes Frescos</h3>
+                <h3 className="feature-title">Fresh Ingredients</h3>
                 <p className="feature-description">
-                  Vegetales orgánicos y salsas artesanales preparadas diariamente
+                  Organic vegetables and artisanal sauces prepared daily
                 </p>
               </div>
             </div>
@@ -53,11 +53,11 @@ function App() {
             <div className="chat-notice">
               <div className="chat-notice-content">
                 <p className="chat-notice-text">
-                  💬 ¿Tienes preguntas sobre nuestro menú? 
+                  💬 Have questions about our menu? 
                   <br />
-                  <strong>¡Chatea con nuestro asistente virtual!</strong> 
+                  <strong>Chat with our virtual assistant!</strong> 
                   <br />
-                  Usa el botón naranja en la esquina inferior derecha.
+                  Use the orange button in the bottom right corner.
                 </p>
               </div>
             </div>

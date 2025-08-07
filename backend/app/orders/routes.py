@@ -3,12 +3,14 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.orders import bp
 from app import db
 from app.models import Order, User, ChatSession, ChatMessage
+from app.utils.llm_client import LLMClient
 import json
 import uuid
 import random
 import string
 from datetime import datetime, timedelta
 import os
+import logging
 
 def load_menu():
     """Load menu data from JSON file"""
@@ -25,7 +27,7 @@ def generate_order_id():
     return f"PB{''.join(random.choices(string.digits, k=6))}"
 
 def analyze_chat_for_order(session_id, user_id):
-    """Analyze chat messages to extract order items"""
+    """Analyze chat messages to extract order items using LLM"""
     try:
         # Get the chat session
         session = ChatSession.query.filter_by(session_id=session_id, user_id=user_id).first()
@@ -38,59 +40,117 @@ def analyze_chat_for_order(session_id, user_id):
         # Combine all user messages for analysis
         conversation_text = " ".join([msg.content for msg in messages if msg.message_type == 'user'])
         
+        if not conversation_text.strip():
+            return {"error": "No user messages found in conversation"}, 400
+        
         # Load menu for validation
         menu = load_menu()
         
-        # Simple item extraction (in production, you'd use more sophisticated LLM analysis)
+        if not menu:
+            return {"error": "Menu data not available"}, 500
+        
+        # Use LLM for intelligent order extraction
+        llm_client = LLMClient()
+        try:
+            llm_result = llm_client.analyze_conversation_for_order(conversation_text, menu)
+        except Exception as llm_error:
+            logging.warning(f"LLM analysis failed: {str(llm_error)}, falling back to keyword matching")
+            llm_result = {"items": [], "confidence": 0.0, "reasoning": f"LLM failed: {str(llm_error)}"}
+        
+        # Process LLM results
         detected_items = []
         total_amount = 0.0
         
-        # Check each menu category for mentioned items
-        for category in ['burgers', 'sides', 'drinks', 'desserts']:
-            if category in menu:
-                for item in menu[category]:
-                    item_name = item['name'].lower()
-                    conversation_lower = conversation_text.lower()
-                    
-                    # Simple keyword matching (can be enhanced with LLM)
-                    if any(word in conversation_lower for word in item_name.split()):
-                        # Try to extract quantity (default to 1)
-                        quantity = 1
-                        for word in conversation_text.split():
-                            if word.isdigit() and int(word) <= 10:  # Reasonable quantity limit
-                                quantity = int(word)
+        if llm_result.get('items'):
+            for item in llm_result['items']:
+                # Validate that the item exists in our menu and prices match
+                item_found = False
+                for category in ['burgers', 'sides', 'drinks', 'desserts']:
+                    if category in menu:
+                        for menu_item in menu[category]:
+                            if menu_item['name'].lower() == item['name'].lower():
+                                # Use actual menu price for security
+                                actual_price = float(menu_item['price'])
+                                quantity = max(1, int(item.get('quantity', 1)))  # Ensure positive quantity
+                                
+                                validated_item = {
+                                    "name": menu_item['name'],  # Use exact menu name
+                                    "price": actual_price,
+                                    "quantity": quantity,
+                                    "customizations": item.get('customizations', []),
+                                    "category": category
+                                }
+                                
+                                detected_items.append(validated_item)
+                                total_amount += actual_price * quantity
+                                item_found = True
                                 break
-                        
-                        # Extract customizations (simple approach)
-                        customizations = []
-                        if "no onions" in conversation_lower or "without onions" in conversation_lower:
-                            customizations.append("no onions")
-                        if "extra cheese" in conversation_lower:
-                            customizations.append("extra cheese")
-                        if "no tomato" in conversation_lower or "without tomato" in conversation_lower:
-                            customizations.append("no tomato")
-                        
-                        detected_items.append({
-                            "name": item['name'],
-                            "price": float(item['price']),
-                            "quantity": quantity,
-                            "customizations": customizations,
-                            "category": category
-                        })
-                        
-                        total_amount += float(item['price']) * quantity
+                    if item_found:
+                        break
+        
+        # Fallback to simple keyword matching if LLM fails or finds nothing
+        if not detected_items:
+            logging.info("LLM found no items, falling back to simple keyword matching")
+            detected_items, total_amount = _simple_keyword_extraction(conversation_text, menu)
         
         if not detected_items:
-            return {"error": "No menu items detected in conversation"}, 400
+            return {"error": "No menu items detected in conversation. Please mention specific items from our menu."}, 400
         
         return {
             "items": detected_items,
             "total_amount": round(total_amount, 2),
-            "conversation_summary": conversation_text[:200] + "..." if len(conversation_text) > 200 else conversation_text
+            "conversation_summary": conversation_text[:200] + "..." if len(conversation_text) > 200 else conversation_text,
+            "analysis_method": "LLM" if llm_result.get('items') else "keyword_matching",
+            "llm_confidence": llm_result.get('confidence', 0.0),
+            "llm_reasoning": llm_result.get('reasoning', 'No LLM analysis available'),
+            "unavailable_items": llm_result.get('unavailable_items', [])
         }, 200
         
     except Exception as e:
+        logging.error(f"Error in analyze_chat_for_order: {str(e)}")
         return {"error": f"Failed to analyze chat: {str(e)}"}, 500
+
+def _simple_keyword_extraction(conversation_text, menu):
+    """Fallback simple keyword matching for order extraction"""
+    detected_items = []
+    total_amount = 0.0
+    conversation_lower = conversation_text.lower()
+    
+    # Check each menu category for mentioned items
+    for category in ['burgers', 'sides', 'drinks', 'desserts']:
+        if category in menu:
+            for item in menu[category]:
+                item_name = item['name'].lower()
+                
+                # Simple keyword matching
+                if any(word in conversation_lower for word in item_name.split()):
+                    # Try to extract quantity (default to 1)
+                    quantity = 1
+                    for word in conversation_text.split():
+                        if word.isdigit() and int(word) <= 10:  # Reasonable quantity limit
+                            quantity = int(word)
+                            break
+                    
+                    # Extract customizations (simple approach)
+                    customizations = []
+                    if "no onions" in conversation_lower or "without onions" in conversation_lower:
+                        customizations.append("no onions")
+                    if "extra cheese" in conversation_lower:
+                        customizations.append("extra cheese")
+                    if "no tomato" in conversation_lower or "without tomato" in conversation_lower:
+                        customizations.append("no tomato")
+                    
+                    detected_items.append({
+                        "name": item['name'],
+                        "price": float(item['price']),
+                        "quantity": quantity,
+                        "customizations": customizations,
+                        "category": category
+                    })
+                    
+                    total_amount += float(item['price']) * quantity
+    
+    return detected_items, total_amount
 
 @bp.route('/', methods=['POST'])
 @jwt_required()
@@ -106,7 +166,11 @@ def create_order():
         session_id = data['session_id']
         
         # Analyze chat for order items
-        analysis_result, status_code = analyze_chat_for_order(session_id, user_id)
+        try:
+            analysis_result, status_code = analyze_chat_for_order(session_id, user_id)
+        except Exception as analysis_error:
+            logging.error(f"Error in analyze_chat_for_order: {str(analysis_error)}")
+            return jsonify({'error': 'Failed to analyze chat for order creation', 'details': str(analysis_error)}), 500
         
         if status_code != 200:
             return jsonify(analysis_result), status_code
@@ -123,7 +187,7 @@ def create_order():
             status='received',
             items=json.dumps(analysis_result['items']),
             total_amount=analysis_result['total_amount'],
-            delivery_address="Default address (to be enhanced)",  # Placeholder
+            delivery_address=None,  # Address not required per user feedback
             estimated_delivery=datetime.utcnow() + timedelta(minutes=30)  # 30 min estimate
         )
         
@@ -135,108 +199,21 @@ def create_order():
         order_response['items'] = analysis_result['items']
         order_response['conversation_summary'] = analysis_result['conversation_summary']
         
-        return jsonify({
+        # Include analysis metadata for better user feedback
+        response_data = {
             'message': 'Order created successfully',
-            'order': order_response
-        }), 201
+            'order': order_response,
+            'analysis_method': analysis_result.get('analysis_method', 'unknown'),
+            'llm_confidence': analysis_result.get('llm_confidence', 0.0),
+            'unavailable_items': analysis_result.get('unavailable_items', []),
+            'llm_reasoning': analysis_result.get('llm_reasoning', '')
+        }
+        
+        return jsonify(response_data), 201
         
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Failed to create order', 'details': str(e)}), 500
-
-@bp.route('/<order_id>', methods=['GET'])
-@jwt_required()
-def get_order(order_id):
-    """Get order details by ID"""
-    try:
-        user_id = get_jwt_identity()
-        
-        # Find order - user can only see their own orders
-        order = Order.query.filter_by(id=order_id, user_id=user_id).first()
-        
-        if not order:
-            return jsonify({'error': 'Order not found'}), 404
-        
-        # Parse items JSON
-        try:
-            items = json.loads(order.items)
-        except:
-            items = []
-        
-        order_data = order.to_dict()
-        order_data['items'] = items
-        
-        # Add status description
-        status_descriptions = {
-            'received': 'Your order has been received and is being processed.',
-            'preparing': 'Our kitchen is preparing your delicious meal.',
-            'cooking': 'Your food is being cooked with care.',
-            'ready': 'Your order is ready for pickup/delivery.',
-            'out_for_delivery': f'Your order is on the way! Driver: {order.driver_name}' if order.driver_name else 'Your order is out for delivery.',
-            'delivered': 'Your order has been delivered. Enjoy your meal!',
-            'cancelled': 'Your order has been cancelled.'
-        }
-        
-        order_data['status_description'] = status_descriptions.get(order.status, 'Status unknown')
-        
-        return jsonify({'order': order_data}), 200
-        
-    except Exception as e:
-        return jsonify({'error': 'Failed to fetch order', 'details': str(e)}), 500
-
-@bp.route('/<order_id>/tracking', methods=['GET'])
-@jwt_required()
-def track_order(order_id):
-    """Get detailed tracking information for an order"""
-    try:
-        user_id = get_jwt_identity()
-        
-        order = Order.query.filter_by(id=order_id, user_id=user_id).first()
-        
-        if not order:
-            return jsonify({'error': 'Order not found'}), 404
-        
-        # Generate tracking timeline
-        timeline = []
-        
-        timeline.append({
-            'status': 'received',
-            'description': 'Order received',
-            'timestamp': order.created_at.isoformat(),
-            'completed': True
-        })
-        
-        # Add other statuses based on current order status
-        statuses = ['preparing', 'cooking', 'ready', 'out_for_delivery', 'delivered']
-        current_index = statuses.index(order.status) if order.status in statuses else -1
-        
-        for i, status in enumerate(statuses):
-            timeline.append({
-                'status': status,
-                'description': get_status_description(status),
-                'timestamp': order.updated_at.isoformat() if i <= current_index else None,
-                'completed': i <= current_index,
-                'current': status == order.status
-            })
-        
-        tracking_data = {
-            'order_id': order.id,
-            'current_status': order.status,
-            'estimated_delivery': order.estimated_delivery.isoformat() if order.estimated_delivery else None,
-            'timeline': timeline
-        }
-        
-        # Add driver info if available
-        if order.driver_name and order.status in ['out_for_delivery']:
-            tracking_data['driver'] = {
-                'name': order.driver_name,
-                'phone': order.driver_phone
-            }
-        
-        return jsonify({'tracking': tracking_data}), 200
-        
-    except Exception as e:
-        return jsonify({'error': 'Failed to fetch tracking', 'details': str(e)}), 500
 
 @bp.route('/lookup/<order_id>', methods=['GET'])
 @jwt_required()
@@ -305,49 +282,3 @@ def get_user_orders():
         
     except Exception as e:
         return jsonify({'error': 'Failed to fetch orders', 'details': str(e)}), 500
-
-@bp.route('/<order_id>/issues', methods=['POST'])
-@jwt_required()
-def report_issue(order_id):
-    """Report an issue with an order"""
-    try:
-        user_id = get_jwt_identity()
-        data = request.get_json()
-        
-        if not data.get('issue_type') or not data.get('description'):
-            return jsonify({'error': 'Issue type and description are required'}), 400
-        
-        order = Order.query.filter_by(id=order_id, user_id=user_id).first()
-        
-        if not order:
-            return jsonify({'error': 'Order not found'}), 404
-        
-        # Here you would typically save the issue to a database table
-        # For now, we'll just return a success response
-        
-        issue_data = {
-            'order_id': order_id,
-            'issue_type': data['issue_type'],
-            'description': data['description'],
-            'status': 'reported',
-            'reported_at': 'now'  # In real implementation, use datetime.utcnow()
-        }
-        
-        return jsonify({
-            'message': 'Issue reported successfully. Our team will contact you shortly.',
-            'issue': issue_data
-        }), 201
-        
-    except Exception as e:
-        return jsonify({'error': 'Failed to report issue', 'details': str(e)}), 500
-
-def get_status_description(status):
-    """Helper function to get user-friendly status descriptions"""
-    descriptions = {
-        'preparing': 'Kitchen is preparing your order',
-        'cooking': 'Your food is being cooked',
-        'ready': 'Order is ready',
-        'out_for_delivery': 'Out for delivery',
-        'delivered': 'Delivered successfully'
-    }
-    return descriptions.get(status, status.replace('_', ' ').title())
