@@ -31,7 +31,7 @@ class LLMClient:
         - Suggestion format: "Perfect! I see you're interested in those items. You can use the shopping cart button (🛒) in the top right corner of the chat to automatically create your order based on our conversation."
         - Don't suggest order creation for general menu questions or single item inquiries
         - Always be helpful with menu questions and provide detailed information about ingredients, prices, and options
-        - Only suggest order creation when someone mentions multiple items or specific quantities with clear ordering intent
+        - Only suggest order creation when someone mentions multiple items or specific quantities with clear ordering intent, but try to be not repetitive or pushy
         
         ORDER TRACKING:
         - When customers ask about order status, always ask for their order ID (format: PB######)
