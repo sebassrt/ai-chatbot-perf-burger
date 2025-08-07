@@ -53,3 +53,36 @@ export interface ChatState {
   isAuthenticated: boolean;
   user: User | null;
 }
+
+// Order Types
+export interface OrderItem {
+  name: string;
+  price: number;
+  quantity: number;
+  customizations: string[];
+  category: string;
+}
+
+export interface Order {
+  id: string;
+  status: string;
+  items: OrderItem[];
+  total_amount: number;
+  delivery_address: string;
+  estimated_delivery: string | null;
+  actual_delivery: string | null;
+  created_at: string;
+  driver_name?: string;
+  driver_phone?: string;
+  status_description?: string;
+  chat_friendly_summary?: string;
+}
+
+export interface CreateOrderResponse {
+  message: string;
+  order: Order;
+}
+
+export interface OrderLookupResponse {
+  order: Order;
+}

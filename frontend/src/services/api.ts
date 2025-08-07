@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosResponse } from 'axios';
-import type { AuthResponse, ChatResponse, ApiError } from '../types';
+import type { AuthResponse, ChatResponse, ApiError, CreateOrderResponse, OrderLookupResponse } from '../types';
 
 class ApiService {
   private static instance: ApiService;
@@ -114,6 +114,36 @@ class ApiService {
       }
 
       const response: AxiosResponse<ChatResponse> = await this.api.post('/chat/', payload);
+      return response.data;
+    } catch (error: any) {
+      throw this.handleError(error);
+    }
+  }
+
+  // Order methods
+  async createOrder(sessionId: string): Promise<CreateOrderResponse> {
+    try {
+      const response: AxiosResponse<CreateOrderResponse> = await this.api.post('/orders/', {
+        session_id: sessionId
+      });
+      return response.data;
+    } catch (error: any) {
+      throw this.handleError(error);
+    }
+  }
+
+  async lookupOrder(orderId: string): Promise<OrderLookupResponse> {
+    try {
+      const response: AxiosResponse<OrderLookupResponse> = await this.api.get(`/orders/lookup/${orderId}`);
+      return response.data;
+    } catch (error: any) {
+      throw this.handleError(error);
+    }
+  }
+
+  async getUserOrders(): Promise<any> {
+    try {
+      const response = await this.api.get('/orders/');
       return response.data;
     } catch (error: any) {
       throw this.handleError(error);

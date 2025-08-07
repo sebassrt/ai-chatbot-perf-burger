@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send, User, Bot, Trash2 } from 'lucide-react';
+import { MessageCircle, X, Send, User, Bot, Trash2, ShoppingCart } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
-import type { ChatMessage, ChatState } from '../types';
+import type { ChatMessage, ChatState, CreateOrderResponse, OrderLookupResponse } from '../types';
 
 const ChatWidget: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
@@ -77,6 +77,99 @@ Puedo ayudarte con:
     }, 100);
   };
 
+  const createOrder = async () => {
+    if (!chatState.sessionId) {
+      addBotMessage("Lo siento, necesitas tener una conversación activa para crear un pedido. ¡Escríbeme algo primero!");
+      return;
+    }
+
+    try {
+      setChatState(prev => ({ ...prev, isLoading: true }));
+      
+      addBotMessage("🔍 Analizando nuestra conversación para crear tu pedido...");
+      
+      const response: CreateOrderResponse = await apiService.createOrder(chatState.sessionId);
+      
+      const orderSummary = `🎉 **¡Pedido creado exitosamente!**
+
+**ID del Pedido:** ${response.order.id}
+**Total:** $${response.order.total_amount.toFixed(2)}
+**Estado:** ${response.order.status_description || 'Recibido'}
+**Tiempo estimado:** ${response.order.estimated_delivery ? new Date(response.order.estimated_delivery).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '30-40 minutos'}
+
+**Artículos pedidos:**
+${response.order.items.map(item => 
+  `• ${item.quantity}x ${item.name} - $${(item.price * item.quantity).toFixed(2)}${item.customizations.length > 0 ? ` (${item.customizations.join(', ')})` : ''}`
+).join('\n')}
+
+Tu pedido está siendo procesado. ¡Te mantendremos informado del progreso! 🍔✨`;
+
+      addBotMessage(orderSummary);
+      
+    } catch (error: any) {
+      console.error('Error creating order:', error);
+      addBotMessage(`❌ **Error al crear el pedido**\n\n${error.message || 'No se pudo crear el pedido. Por favor intenta de nuevo.'}`);
+    } finally {
+      setChatState(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const handleOrderLookup = async (orderId: string) => {
+    try {
+      setChatState(prev => ({ ...prev, isLoading: true }));
+      
+      addBotMessage(`🔍 Buscando información del pedido ${orderId}...`);
+      
+      const response: OrderLookupResponse = await apiService.lookupOrder(orderId);
+      
+      const orderInfo = `📋 **Información del Pedido ${response.order.id}**
+
+**Estado:** ${response.order.status_description}
+**Total:** $${response.order.total_amount.toFixed(2)}
+**Creado:** ${new Date(response.order.created_at).toLocaleDateString('es-ES')} a las ${new Date(response.order.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+${response.order.estimated_delivery ? `**Entrega estimada:** ${new Date(response.order.estimated_delivery).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}` : ''}
+
+**Artículos:**
+${response.order.items.map(item => 
+  `• ${item.quantity}x ${item.name} - $${(item.price * item.quantity).toFixed(2)}${item.customizations.length > 0 ? ` (${item.customizations.join(', ')})` : ''}`
+).join('\n')}
+
+${response.order.driver_name ? `**Conductor:** ${response.order.driver_name}${response.order.driver_phone ? ` (${response.order.driver_phone})` : ''}` : ''}`;
+
+      addBotMessage(orderInfo);
+      
+    } catch (error: any) {
+      console.error('Error looking up order:', error);
+      addBotMessage(`❌ **No se pudo encontrar el pedido ${orderId}**\n\n${error.message || 'Verifica que el ID del pedido sea correcto y que sea tu pedido.'}`);
+    } finally {
+      setChatState(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const addBotMessage = (content: string) => {
+    const botMessage: ChatMessage = {
+      id: 'bot-' + Date.now(),
+      content,
+      isUser: false,
+      timestamp: new Date(),
+    };
+    
+    setChatState(prev => ({
+      ...prev,
+      messages: [...prev.messages, botMessage],
+    }));
+  };
+
+  const shouldSuggestOrderCreation = (message: string): boolean => {
+    const orderKeywords = [
+      'quiero', 'ordenar', 'pedir', 'comprar', 'burger', 'hamburguesa', 
+      'papas', 'fries', 'bebida', 'drink', 'combo', 'menú'
+    ];
+    
+    const messageLower = message.toLowerCase();
+    return orderKeywords.some(keyword => messageLower.includes(keyword));
+  };
+
 
 
   const scrollToBottom = () => {
@@ -86,9 +179,34 @@ Puedo ayudarte con:
   const handleSendMessage = async () => {
     if (!message.trim() || chatState.isLoading) return;
 
+    const trimmedMessage = message.trim();
+    
+    // Check for order lookup pattern (e.g., "check order PB123456")
+    const orderLookupMatch = trimmedMessage.match(/(?:check|ver|consultar|buscar)\s+(?:order|pedido|orden)\s+(PB\d{6})/i);
+    if (orderLookupMatch) {
+      const orderId = orderLookupMatch[1];
+      
+      const userMessage: ChatMessage = {
+        id: 'user-' + Date.now(),
+        content: trimmedMessage,
+        isUser: true,
+        timestamp: new Date(),
+        sessionId: chatState.sessionId || undefined,
+      };
+
+      setChatState(prev => ({
+        ...prev,
+        messages: [...prev.messages, userMessage],
+      }));
+
+      setMessage('');
+      await handleOrderLookup(orderId);
+      return;
+    }
+
     const userMessage: ChatMessage = {
       id: 'user-' + Date.now(),
-      content: message.trim(),
+      content: trimmedMessage,
       isUser: true,
       timestamp: new Date(),
       sessionId: chatState.sessionId || undefined,
@@ -124,6 +242,24 @@ Puedo ayudarte con:
         isLoading: false,
         isTyping: false,
       }));
+
+      // Check if we should suggest order creation
+      if (shouldSuggestOrderCreation(trimmedMessage)) {
+        setTimeout(() => {
+          const suggestionMessage: ChatMessage = {
+            id: 'suggestion-' + Date.now(),
+            content: `🍔 **¿Te gustaría crear un pedido?**\n\nVeo que mencionaste algunos productos. Puedo analizar nuestra conversación y crear un pedido para ti.\n\n*Haz clic en el botón de carrito (🛒) en la esquina superior derecha para crear tu pedido.*`,
+            isUser: false,
+            timestamp: new Date(),
+          };
+          
+          setChatState(prev => ({
+            ...prev,
+            messages: [...prev.messages, suggestionMessage],
+          }));
+        }, 1000);
+      }
+      
     } catch (error: any) {
       console.error('Failed to send message:', error);
       
@@ -248,6 +384,17 @@ Puedo ayudarte con:
               </div>
             </div>
             <div className="chat-header-actions">
+              {chatState.sessionId && chatState.messages.length > 0 && (
+                <button
+                  onClick={createOrder}
+                  className="chat-action-button order-button"
+                  title="Crear pedido"
+                  aria-label="Crear pedido"
+                  disabled={chatState.isLoading}
+                >
+                  <ShoppingCart size={16} />
+                </button>
+              )}
               {chatState.messages.length > 0 && (
                 <button
                   onClick={clearChat}

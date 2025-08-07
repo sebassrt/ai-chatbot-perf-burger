@@ -382,6 +382,19 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
+.chat-action-button.order-button {
+  background: rgba(34, 197, 94, 0.9);
+}
+
+.chat-action-button.order-button:hover {
+  background: rgba(34, 197, 94, 1);
+}
+
+.chat-action-button.order-button:disabled {
+  background: rgba(156, 163, 175, 0.5);
+  cursor: not-allowed;
+}
+
 /* Chat Authentication Required Styles */
 .chat-auth-required {
   height: 100%;
