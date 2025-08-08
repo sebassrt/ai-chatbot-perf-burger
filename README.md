@@ -24,8 +24,10 @@ This project was developed following an 8-part implementation plan:
 
 ### 🔙 Backend
 - 🔐 JWT-based authentication
-- 🤖 OpenAI GPT integration with enhanced error handling
+- 🤖 OpenAI GPT-3.5-turbo integration with enhanced error handling
+- 🧠 Intelligent chatbot with context-aware responses
 - 📚 RAG with knowledge base (menu, FAQs, policies)
+- 💬 Conversational AI for menu recommendations and order assistance
 - 💾 SQLite database with chat session management
 - 🩺 Health checks and debug endpoints
 - 📊 Comprehensive logging for Azure troubleshooting
