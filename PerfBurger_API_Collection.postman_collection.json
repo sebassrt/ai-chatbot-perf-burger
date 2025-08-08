@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "PerfBurger AI Chatbot API",
-    "description": "Complete API collection for testing the PerfBurger AI chatbot endpoints including authentication, chat, and order management. This collection includes comprehensive tests for all endpoints to validate functionality, error handling, and data integrity.",
+    "description": "Complete API collection for testing the PerfBurger AI chatbot endpoints including authentication, chat, and order management.\n\n## Available Endpoints:\n\n### Core Application Endpoints:\n- **GET /health** - Application health check\n- **POST /users/register** - User registration\n- **POST /users/login** - User authentication\n- **POST /chat/** - Chat with AI assistant (requires authentication)\n- **POST /orders/** - Create order from chat conversation (requires authentication)\n- **GET /orders/lookup/{order_id}** - Lookup order by ID (requires authentication)\n\n### Debug Endpoints:\n- **GET /debug/llm-status** - Check LLM configuration and connectivity\n- **GET /debug/environment** - Get environment and deployment information\n\n## Usage:\n1. First register a user or login to get an authentication token\n2. Use the token to authenticate chat and order requests\n3. Start a chat conversation to interact with the AI\n4. Create orders from chat sessions that mention menu items\n5. Use debug endpoints to troubleshoot configuration issues\n\n## Testing:\nThis collection includes comprehensive tests for all endpoints to validate functionality, error handling, and data integrity. Run the entire collection to test the complete API workflow.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "event": [
@@ -233,54 +233,6 @@
             },
             "description": "Login with existing user credentials"
           }
-        },
-        {
-          "name": "Get User Profile",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// Test successful profile retrieval",
-                  "pm.test('Profile retrieved successfully', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "// Test response contains user profile data",
-                  "pm.test('Response contains user profile', function () {",
-                  "    const response = pm.response.json();",
-                  "    pm.expect(response).to.have.property('user');",
-                  "    pm.expect(response.user).to.have.property('id');",
-                  "    pm.expect(response.user).to.have.property('email');",
-                  "    pm.expect(response.user).to.have.property('first_name');",
-                  "    pm.expect(response.user).to.have.property('last_name');",
-                  "});",
-                  "",
-                  "// Test email format is valid",
-                  "pm.test('Email has valid format', function () {",
-                  "    const response = pm.response.json();",
-                  "    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;",
-                  "    pm.expect(response.user.email).to.match(emailRegex);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/users/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["users", "profile"]
-            },
-            "description": "Get current user profile (requires authentication)"
-          }
         }
       ]
     },
@@ -345,9 +297,9 @@
               "raw": "{\n  \"message\": \"Hello! Can you tell me about your menu?\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/chat",
+              "raw": "{{baseUrl}}/chat/",
               "host": ["{{baseUrl}}"],
-              "path": ["chat"]
+              "path": ["chat", ""]
             },
             "description": "Send a message to the AI chatbot"
           }
@@ -367,18 +319,12 @@
                   "// Test response mentions menu items or vegetarian",
                   "pm.test('Response contains relevant menu information', function () {",
                   "    const response = pm.response.json();",
-                  "    const responseText = response.response.toLowerCase();",
+                  "    const responseText = response.message.toLowerCase();",
                   "    const hasMenuKeywords = responseText.includes('burger') || ",
                   "                           responseText.includes('vegetarian') || ",
                   "                           responseText.includes('menu') ||",
                   "                           responseText.includes('price');",
                   "    pm.expect(hasMenuKeywords).to.be.true;",
-                  "});",
-                  "",
-                  "// Test knowledge base integration",
-                  "pm.test('Response uses knowledge base data', function () {",
-                  "    const response = pm.response.json();",
-                  "    pm.expect(response).to.have.property('sources');",
                   "});"
                 ]
               }
@@ -398,12 +344,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"message\": \"What vegetarian options do you have under $15?\"\n}"
+              "raw": "{\n  \"message\": \"What vegetarian options do you have under $15?\",\n  \"session_id\": \"{{sessionId}}\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/chat",
+              "raw": "{{baseUrl}}/chat/",
               "host": ["{{baseUrl}}"],
-              "path": ["chat"]
+              "path": ["chat", ""]
             },
             "description": "Ask about specific menu items"
           }
@@ -423,7 +369,7 @@
                   "// Test response mentions delivery information",
                   "pm.test('Response contains delivery information', function () {",
                   "    const response = pm.response.json();",
-                  "    const responseText = response.response.toLowerCase();",
+                  "    const responseText = response.message.toLowerCase();",
                   "    const hasDeliveryKeywords = responseText.includes('delivery') || ",
                   "                               responseText.includes('minutes') || ",
                   "                               responseText.includes('time') ||",
@@ -448,63 +394,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"message\": \"How long does delivery usually take?\"\n}"
+              "raw": "{\n  \"message\": \"How long does delivery usually take?\",\n  \"session_id\": \"{{sessionId}}\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/chat",
+              "raw": "{{baseUrl}}/chat/",
               "host": ["{{baseUrl}}"],
-              "path": ["chat"]
+              "path": ["chat", ""]
             },
             "description": "Ask about delivery information"
-          }
-        },
-        {
-          "name": "Get Chat Sessions",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// Test successful sessions retrieval",
-                  "pm.test('Chat sessions retrieved successfully', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "// Test response is an array",
-                  "pm.test('Response contains sessions array', function () {",
-                  "    const response = pm.response.json();",
-                  "    pm.expect(response).to.have.property('sessions');",
-                  "    pm.expect(response.sessions).to.be.an('array');",
-                  "});",
-                  "",
-                  "// Test session structure if sessions exist",
-                  "pm.test('Sessions have correct structure', function () {",
-                  "    const response = pm.response.json();",
-                  "    if (response.sessions.length > 0) {",
-                  "        const session = response.sessions[0];",
-                  "        pm.expect(session).to.have.property('session_id');",
-                  "        pm.expect(session).to.have.property('created_at');",
-                  "        pm.expect(session).to.have.property('message_count');",
-                  "    }",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/chat/sessions",
-              "host": ["{{baseUrl}}"],
-              "path": ["chat", "sessions"]
-            },
-            "description": "Get all chat sessions for the current user"
           }
         }
       ]
@@ -513,14 +410,14 @@
       "name": "Orders",
       "item": [
         {
-          "name": "Get Order Status",
+          "name": "Create Order from Chat",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Test successful order status retrieval",
-                  "pm.test('Order status retrieved successfully', function () {",
+                  "// Test successful order creation",
+                  "pm.test('Order created successfully', function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
@@ -531,186 +428,21 @@
                   "    pm.expect(response.order).to.have.property('id');",
                   "    pm.expect(response.order).to.have.property('status');",
                   "    pm.expect(response.order).to.have.property('items');",
-                  "    pm.expect(response.order).to.have.property('total');",
+                  "    pm.expect(response.order).to.have.property('total_amount');",
                   "});",
                   "",
-                  "// Test order ID matches request",
-                  "pm.test('Order ID matches request', function () {",
+                  "// Save order ID for lookup tests",
+                  "pm.test('Order ID is valid format', function () {",
                   "    const response = pm.response.json();",
-                  "    const orderIdFromUrl = pm.request.url.path[pm.request.url.path.length - 1];",
-                  "    pm.expect(response.order.id).to.eql(orderIdFromUrl);",
+                  "    pm.expect(response.order.id).to.match(/^PB\\d{6}$/);",
+                  "    pm.environment.set('testOrderId', response.order.id);",
                   "});",
                   "",
-                  "// Test status is valid",
-                  "pm.test('Order status is valid', function () {",
+                  "// Test items array is not empty",
+                  "pm.test('Order contains items', function () {",
                   "    const response = pm.response.json();",
-                  "    const validStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'];",
-                  "    pm.expect(validStatuses).to.include(response.order.status);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/orders/{{sampleOrderId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders", "{{sampleOrderId}}"]
-            },
-            "description": "Get order status by ID (sample order ID: PB001234)"
-          }
-        },
-        {
-          "name": "Track Order",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// Test successful order tracking",
-                  "pm.test('Order tracking retrieved successfully', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "// Test response contains tracking data",
-                  "pm.test('Response contains tracking information', function () {",
-                  "    const response = pm.response.json();",
-                  "    pm.expect(response).to.have.property('tracking');",
-                  "    pm.expect(response.tracking).to.have.property('order_id');",
-                  "    pm.expect(response.tracking).to.have.property('current_status');",
-                  "    pm.expect(response.tracking).to.have.property('status_history');",
-                  "});",
-                  "",
-                  "// Test status history is an array",
-                  "pm.test('Status history is an array', function () {",
-                  "    const response = pm.response.json();",
-                  "    pm.expect(response.tracking.status_history).to.be.an('array');",
-                  "});",
-                  "",
-                  "// Test estimated delivery time if provided",
-                  "pm.test('Contains delivery information', function () {",
-                  "    const response = pm.response.json();",
-                  "    pm.expect(response.tracking).to.have.property('estimated_delivery');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/orders/{{sampleOrderId}}/tracking",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders", "{{sampleOrderId}}", "tracking"]
-            },
-            "description": "Get detailed tracking information for an order"
-          }
-        },
-        {
-          "name": "Get All User Orders",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// Test successful orders retrieval",
-                  "pm.test('User orders retrieved successfully', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "// Test response contains orders array",
-                  "pm.test('Response contains orders array', function () {",
-                  "    const response = pm.response.json();",
-                  "    pm.expect(response).to.have.property('orders');",
-                  "    pm.expect(response.orders).to.be.an('array');",
-                  "});",
-                  "",
-                  "// Test order structure if orders exist",
-                  "pm.test('Orders have correct structure', function () {",
-                  "    const response = pm.response.json();",
-                  "    if (response.orders.length > 0) {",
-                  "        const order = response.orders[0];",
-                  "        pm.expect(order).to.have.property('id');",
-                  "        pm.expect(order).to.have.property('status');",
-                  "        pm.expect(order).to.have.property('created_at');",
-                  "        pm.expect(order).to.have.property('total');",
-                  "    }",
-                  "});",
-                  "",
-                  "// Test pagination info",
-                  "pm.test('Response contains pagination info', function () {",
-                  "    const response = pm.response.json();",
-                  "    pm.expect(response).to.have.property('total_count');",
-                  "    pm.expect(response).to.have.property('page');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/orders",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders"]
-            },
-            "description": "Get all orders for the current user"
-          }
-        },
-        {
-          "name": "Report Order Issue",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// Test successful issue reporting",
-                  "pm.test('Order issue reported successfully', function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "// Test response contains issue data",
-                  "pm.test('Response contains issue information', function () {",
-                  "    const response = pm.response.json();",
-                  "    pm.expect(response).to.have.property('issue');",
-                  "    pm.expect(response.issue).to.have.property('id');",
-                  "    pm.expect(response.issue).to.have.property('order_id');",
-                  "    pm.expect(response.issue).to.have.property('issue_type');",
-                  "    pm.expect(response.issue).to.have.property('description');",
-                  "    pm.expect(response.issue).to.have.property('status');",
-                  "});",
-                  "",
-                  "// Test issue data matches request",
-                  "pm.test('Issue data matches request', function () {",
-                  "    const response = pm.response.json();",
-                  "    const requestBody = JSON.parse(pm.request.body.raw);",
-                  "    pm.expect(response.issue.issue_type).to.eql(requestBody.issue_type);",
-                  "    pm.expect(response.issue.description).to.eql(requestBody.description);",
-                  "});",
-                  "",
-                  "// Test initial status is correct",
-                  "pm.test('Issue has initial status', function () {",
-                  "    const response = pm.response.json();",
-                  "    pm.expect(response.issue.status).to.eql('reported');",
+                  "    pm.expect(response.order.items).to.be.an('array');",
+                  "    pm.expect(response.order.items.length).to.be.greaterThan(0);",
                   "});"
                 ]
               }
@@ -730,15 +462,150 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"issue_type\": \"wrong_order\",\n  \"description\": \"I received a Classic PerfBurger but ordered a Veggie Supreme\"\n}"
+              "raw": "{\n  \"session_id\": \"{{sessionId}}\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/orders/{{sampleOrderId}}/issues",
+              "raw": "{{baseUrl}}/orders/",
               "host": ["{{baseUrl}}"],
-              "path": ["orders", "{{sampleOrderId}}", "issues"]
+              "path": ["orders", ""]
             },
-            "description": "Report an issue with an order"
+            "description": "Create an order based on the chat conversation"
           }
+        },
+        {
+          "name": "Lookup Order by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test successful order lookup",
+                  "pm.test('Order lookup successful', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test response contains order data",
+                  "pm.test('Response contains order information', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('order');",
+                  "    pm.expect(response.order).to.have.property('id');",
+                  "    pm.expect(response.order).to.have.property('status');",
+                  "    pm.expect(response.order).to.have.property('items');",
+                  "    pm.expect(response.order).to.have.property('total_amount');",
+                  "});",
+                  "",
+                  "// Test order ID format",
+                  "pm.test('Order ID has correct format', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.order.id).to.match(/^PB\\d{6}$/);",
+                  "});",
+                  "",
+                  "// Test status description is present",
+                  "pm.test('Order has status description', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.order).to.have.property('status_description');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/lookup/{{testOrderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "lookup", "{{testOrderId}}"]
+            },
+            "description": "Look up an order by its ID (format: PB######)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Debug",
+      "item": [
+        {
+          "name": "LLM Status Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/debug/llm-status",
+              "host": ["{{baseUrl}}"],
+              "path": ["debug", "llm-status"]
+            },
+            "description": "Check the status of the LLM (Language Learning Model) configuration, including OpenAI API key status and test connectivity."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has LLM status information', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson).to.have.property('environment');",
+                  "    pm.expect(responseJson).to.have.property('openai_config');",
+                  "    pm.expect(responseJson).to.have.property('llm_test');",
+                  "});",
+                  "",
+                  "pm.test('OpenAI configuration status is present', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.environment).to.have.property('OPENAI_API_KEY_set');",
+                  "    pm.expect(responseJson.openai_config).to.have.property('config_api_key_set');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Environment Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/debug/environment",
+              "host": ["{{baseUrl}}"],
+              "path": ["debug", "environment"]
+            },
+            "description": "Get environment information for debugging deployment and configuration issues."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has environment information', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson).to.have.property('environment_variables');",
+                  "    pm.expect(responseJson).to.have.property('system_info');",
+                  "});",
+                  "",
+                  "pm.test('Environment variables status is present', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    const envVars = responseJson.environment_variables;",
+                  "    pm.expect(envVars).to.have.property('OPENAI_API_KEY_status');",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
