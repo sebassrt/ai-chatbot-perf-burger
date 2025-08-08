@@ -57,7 +57,7 @@ function App() {
                   <br />
                   <strong>Chat with our virtual assistant!</strong> 
                   <br />
-                  Use the orange button in the bottom right corner.
+                  Use the blue button in the bottom right corner.
                 </p>
               </div>
             </div>
