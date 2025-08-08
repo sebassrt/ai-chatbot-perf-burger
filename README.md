@@ -2,7 +2,23 @@
 
 A modern, full-stack AI-powered chatbot service for PerfBurger - a premium burger delivery service. Built with a clean monorepo structure separating backend and frontend concerns.
 
+## Live Demo
+- Backend API: https://perfburger-chatbot-a6eph3fsavbwc5bm.westeurope-01.azurewebsites.net
+- Frontend App: https://delightful-ground-0a878f803.2.azurestaticapps.net/
+- Healthcheck: https://perfburger-chatbot-a6eph3fsavbwc5bm.westeurope-01.azurewebsites.net/health
+
 ## Project Overview
+
+This project was developed following an 8-part implementation plan:
+
+1. **User Stories & MVP Definition**: Detailed in `user-stories.md`
+2. **Project Scaffolding**: Flask/React monorepo structure
+3. **Authentication**: JWT-based user authentication
+4. **Core Chat API**: OpenAI GPT integration
+5. **RAG Implementation**: Knowledge base with menu, FAQs, and policies
+6. **Automated Testing**: Comprehensive test suite with mocks
+7. **CI/CD Pipeline**: GitHub Actions automation
+8. **Cloud Deployment**: Azure Web Apps and Static Web Apps
 
 This application provides a complete chatbot solution with:
 - **Backend**: Python/Flask API with OpenAI integration and RAG (Retrieval-Augmented Generation)
@@ -23,7 +39,7 @@ This application provides a complete chatbot solution with:
 │   ├── public/      # Static assets
 │   └── package.json
 ├── .github/workflows/  # CI/CD pipelines
-└── deployment/       # Docker and K8s configs
+└── deployment/       # Deployment configurations
 ```
 
 ## Features
@@ -97,7 +113,30 @@ cp .env.example .env
 
 5. Initialize database:
 ```bash
-# For first time setup:
+flask db upgrade
+```
+
+6. Run tests:
+```bash
+# Run all tests
+pytest
+
+# Run with coverage report
+pytest --cov=app tests/
+
+# Run specific test file
+pytest tests/test_chat.py
+
+# Run with verbose output
+pytest -v
+```
+
+Test coverage includes:
+- Authentication flows
+- Chat functionality with mocked LLM
+- Menu operations
+- Knowledge base retrieval
+- Error cases and edge scenarios
 python init_db.py
 
 # If you need to recreate schema (after model changes):
@@ -209,7 +248,104 @@ OPENAI_API_KEY=your-openai-api-key
 KNOWLEDGE_BASE_PATH=knowledge_base/
 ```
 
-## Deployment
+## CI/CD and Deployment
+
+### CI/CD Pipeline
+
+Our GitHub Actions workflows automate:
+
+Backend (`.github/workflows/backend.yml`):
+1. Code checkout
+2. Python setup and dependencies installation
+3. Linting and testing
+4. Deployment to Azure App Service
+
+Frontend (`.github/workflows/azure-static-web-apps.yml`):
+1. Code checkout
+2. Node.js setup and dependencies installation
+3. Build process
+4. Deployment to Azure Static Web Apps
+
+### Cloud Deployment
+
+The application is deployed on Azure using:
+- Backend: Azure App Service (Python Web App)
+- Frontend: Azure Static Web Apps
+- Database: SQLite (development/testing)
+- Monitoring: Azure Application Insights
+
+### Deployment Configuration
+
+1. Backend deployment:
+The backend is deployed as a Python Web App on Azure App Service, which automatically handles:
+- Python runtime environment
+- Dependencies installation from requirements.txt
+- WSGI server configuration
+- Environment variables management
+- SSL/TLS certificates
+- Custom domain configuration (if needed)
+
+2. Frontend deployment:
+The frontend is deployed using Azure Static Web Apps, which provides:
+```yaml
+# .github/workflows/azure-static-web-apps.yml
+name: Frontend CI/CD
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: Azure/static-web-apps-deploy@v1
+      with:
+        azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_TOKEN }}
+        # Build configuration
+        app_location: "/frontend"    # Location of your frontend code
+        api_location: ""             # If using Static Web Apps API
+        output_location: "dist"      # Build output directory
+```
+
+### Environment Variables
+
+Production environment variables are managed through Azure App Service Configuration:
+
+```bash
+# Azure App Service Configuration
+FLASK_ENV=production
+DATABASE_URL=postgresql://user:pass@perfburger-db.postgres.database.azure.com/chatbot
+OPENAI_API_KEY=sk-...
+JWT_SECRET_KEY=production-key
+CORS_ORIGINS=https://delightful-ground-0a878f803.azurestaticapps.net
+```
+
+### Monitoring and Observability
+
+1. Health Check Endpoint: `GET /health`
+2. Azure Application Insights integration
+3. Structured logging with correlation IDs
+4. Performance metrics dashboard
+
+## Bonus Features Implemented
+
+1. **Enhanced Frontend**:
+   - React-based chat widget
+   - Real-time message updates
+   - Markdown support
+   - Responsive design
+
+2. **Observability**:
+   - Health check endpoint
+   - Azure Application Insights
+   - Structured logging
+   - Performance monitoring
+
+3. **Security**:
+   - JWT authentication
+   - CORS configuration
+   - Rate limiting
+   - Input validation
 
 ### 🚀 Live Demo
 The PerfBurger AI Chatbot is live on Azure:
@@ -219,8 +355,8 @@ The PerfBurger AI Chatbot is live on Azure:
 ### Azure Web App
 Deployed using Azure Web App with automatic deployment from GitHub. Every push to `main` branch automatically updates the live application.
 
-### Other Options
-See the `deployment/` directory for Kubernetes manifests and other cloud deployment configurations.
+### Deployment Options
+See the `deployment/` directory for additional deployment configurations and scripts.
 
 ## Contributing
 
