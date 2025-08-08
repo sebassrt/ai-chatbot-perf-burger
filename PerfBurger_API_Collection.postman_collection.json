@@ -59,6 +59,36 @@
       "key": "accessToken",
       "value": "",
       "description": "JWT access token (auto-populated after login)"
+    },
+    {
+      "key": "sessionId",
+      "value": "",
+      "description": "Chat session ID (auto-populated after first chat)"
+    },
+    {
+      "key": "testOrderId",
+      "value": "PB001234",
+      "description": "Sample order ID for testing lookup functionality"
+    },
+    {
+      "key": "testUserEmail",
+      "value": "test@perfburger.com",
+      "description": "Test user email for registration/login tests"
+    },
+    {
+      "key": "testUserPassword",
+      "value": "password123",
+      "description": "Test user password"
+    },
+    {
+      "key": "testUserFirstName",
+      "value": "John",
+      "description": "Test user first name"
+    },
+    {
+      "key": "testUserLastName",
+      "value": "Doe",
+      "description": "Test user last name"
     }
   ],
   "item": [
@@ -270,6 +300,7 @@
                   "    const response = pm.response.json();",
                   "    pm.expect(response.session_id).to.not.be.empty;",
                   "    pm.environment.set('sessionId', response.session_id);",
+                  "    pm.collectionVariables.set('sessionId', response.session_id);",
                   "});",
                   "",
                   "// Test response time is reasonable",
