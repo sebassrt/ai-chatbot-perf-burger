@@ -1,6 +1,6 @@
 # User Stories for PerfBurger AI Chatbot API
 
-## Core Features Epic
+## Core Features Epic (v1.0)
 
 **Epic Description:** As a user of the PerfBurger system, I need to manage my account and interact with the chatbot.
 
