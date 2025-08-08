@@ -358,6 +358,14 @@ Deployed using Azure Web App with automatic deployment from GitHub. Every push t
 ### Deployment Options
 See the `deployment/` directory for additional deployment configurations and scripts.
 
+### Frontend Deployment
+For detailed frontend deployment instructions, see [FRONTEND_DEPLOYMENT.md](./FRONTEND_DEPLOYMENT.md) which covers:
+- Azure Static Web Apps setup
+- GitHub Actions integration
+- Environment configuration
+- CORS setup
+- Troubleshooting common deployment issues
+
 ## Contributing
 
 1. Fork the repository
