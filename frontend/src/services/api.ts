@@ -141,15 +141,6 @@ class ApiService {
     }
   }
 
-  async getUserOrders(): Promise<any> {
-    try {
-      const response = await this.api.get('/orders/');
-      return response.data;
-    } catch (error: any) {
-      throw this.handleError(error);
-    }
-  }
-
   // Health check
   async checkHealth(): Promise<{ status: string }> {
     try {

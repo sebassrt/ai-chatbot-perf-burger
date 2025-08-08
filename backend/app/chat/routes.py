@@ -104,61 +104,6 @@ def chat():
         logging.error(f"Error type: {type(e).__name__}")
         return jsonify({'error': 'Chat failed', 'details': str(e)}), 500
 
-@bp.route('/sessions', methods=['GET'])
-@jwt_required()
-def get_sessions():
-    """Get user's chat sessions"""
-    try:
-        user_id = get_jwt_identity()
-        sessions = ChatSession.query.filter_by(user_id=user_id).order_by(
-            ChatSession.updated_at.desc()
-        ).all()
-        
-        sessions_data = []
-        for session in sessions:
-            last_message = session.messages.order_by(
-                ChatMessage.timestamp.desc()
-            ).first()
-            
-            sessions_data.append({
-                'session_id': session.session_id,
-                'created_at': session.created_at.isoformat(),
-                'updated_at': session.updated_at.isoformat(),
-                'is_active': session.is_active,
-                'last_message': last_message.content[:100] + '...' if last_message and len(last_message.content) > 100 else last_message.content if last_message else None,
-                'message_count': session.messages.count()
-            })
-        
-        return jsonify({'sessions': sessions_data}), 200
-        
-    except Exception as e:
-        return jsonify({'error': 'Failed to fetch sessions', 'details': str(e)}), 500
-
-@bp.route('/sessions/<session_id>/messages', methods=['GET'])
-@jwt_required()
-def get_session_messages(session_id):
-    """Get messages for a specific session"""
-    try:
-        user_id = get_jwt_identity()
-        session = ChatSession.query.filter_by(
-            session_id=session_id,
-            user_id=user_id
-        ).first()
-        
-        if not session:
-            return jsonify({'error': 'Session not found'}), 404
-        
-        messages = session.messages.order_by(ChatMessage.timestamp.asc()).all()
-        messages_data = [msg.to_dict() for msg in messages]
-        
-        return jsonify({
-            'session_id': session_id,
-            'messages': messages_data
-        }), 200
-        
-    except Exception as e:
-        return jsonify({'error': 'Failed to fetch messages', 'details': str(e)}), 500
-
 def get_chat_history(session_id, limit=10):
     """Helper function to get recent chat history for context"""
     messages = ChatMessage.query.filter_by(session_id=session_id).order_by(

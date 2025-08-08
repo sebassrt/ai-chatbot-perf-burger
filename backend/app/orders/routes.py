@@ -255,30 +255,3 @@ def lookup_order(order_id):
         
     except Exception as e:
         return jsonify({'error': 'Failed to lookup order', 'details': str(e)}), 500
-
-@bp.route('/', methods=['GET'])
-@jwt_required()
-def get_user_orders():
-    """Get all orders for the current user"""
-    try:
-        user_id = get_jwt_identity()
-        
-        orders = Order.query.filter_by(user_id=user_id).order_by(
-            Order.created_at.desc()
-        ).all()
-        
-        orders_data = []
-        for order in orders:
-            try:
-                items = json.loads(order.items)
-            except:
-                items = []
-            
-            order_data = order.to_dict()
-            order_data['items'] = items
-            orders_data.append(order_data)
-        
-        return jsonify({'orders': orders_data}), 200
-        
-    except Exception as e:
-        return jsonify({'error': 'Failed to fetch orders', 'details': str(e)}), 500
