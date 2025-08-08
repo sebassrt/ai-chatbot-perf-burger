@@ -14,7 +14,11 @@
 **Mapped Endpoint:**  
 `GET /orders`
 
+<<<<<<< HEAD
 ----
+=======
+---
+>>>>>>> 836622ebb56fa3d9be57a694cdd748f3d72aa05a
 
 [## 7. View Chat Sessions]
 
@@ -29,7 +33,11 @@
 **Mapped Endpoint:**  
 `GET /chat/sessions`
 
+<<<<<<< HEAD
 ----
+=======
+---
+>>>>>>> 836622ebb56fa3d9be57a694cdd748f3d72aa05a
 **Story Statement:** As a new customer, I want to register an account so I can place orders and track my purchases.  
 **Benefit:** Enables personalized service and order history tracking.  
 **Acceptance Criteria:**
@@ -41,7 +49,11 @@
 **Mapped Endpoint:**  
 `POST /users/register`
 
+<<<<<<< HEAD
 ----
+=======
+---
+>>>>>>> 836622ebb56fa3d9be57a694cdd748f3d72aa05a
 
 ## 2. User Login
 
@@ -57,7 +69,11 @@
 **Mapped Endpoint:**  
 `POST /users/login`
 
+<<<<<<< HEAD
 ----
+=======
+---
+>>>>>>> 836622ebb56fa3d9be57a694cdd748f3d72aa05a
 
 ## 3. Chatbot Menu Inquiry
 
@@ -73,7 +89,11 @@
 **Mapped Endpoint:**  
 `POST /chat`
 
+<<<<<<< HEAD
 ----
+=======
+---
+>>>>>>> 836622ebb56fa3d9be57a694cdd748f3d72aa05a
 
 ## 4. Order Status Tracking
 
@@ -90,7 +110,11 @@
 `GET /orders/{orderId}`  
 `GET /orders/{orderId}/tracking`
 
+<<<<<<< HEAD
 ----
+=======
+---
+>>>>>>> 836622ebb56fa3d9be57a694cdd748f3d72aa05a
 
 ## 5. Report Order Issue
 
