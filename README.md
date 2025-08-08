@@ -2,16 +2,16 @@
 
 A modern, full-stack AI-powered chatbot service for PerfBurger - a premium burger delivery service. Built with a clean monorepo structure separating backend and frontend concerns.
 
-## Live Demo
-- Backend API: https://perfburger-chatbot-a6eph3fsavbwc5bm.westeurope-01.azurewebsites.net
-- Frontend App: https://delightful-ground-0a878f803.2.azurestaticapps.net/
-- Healthcheck: https://perfburger-chatbot-a6eph3fsavbwc5bm.westeurope-01.azurewebsites.net/health
+## 🚀 Live Demo
+- **Frontend**: https://delightful-ground-0a878f803.2.azurestaticapps.net/
+- **Backend API**: https://perfburger-chatbot-a6eph3fsavbwc5bm.westeurope-01.azurewebsites.net
+- **Health Check**: https://perfburger-chatbot-a6eph3fsavbwc5bm.westeurope-01.azurewebsites.net/health
 
 ## Project Overview
 
 This project was developed following an 8-part implementation plan:
 
-1. **User Stories & MVP Definition**: Detailed in `user-stories.md`
+1. **User Stories & MVP Definition**: Detailed in `User-Stories.md`
 2. **Project Scaffolding**: Flask/React monorepo structure
 3. **Authentication**: JWT-based user authentication
 4. **Core Chat API**: OpenAI GPT integration
@@ -20,31 +20,9 @@ This project was developed following an 8-part implementation plan:
 7. **CI/CD Pipeline**: GitHub Actions automation
 8. **Cloud Deployment**: Azure Web Apps and Static Web Apps
 
-This application provides a complete chatbot solution with:
-- **Backend**: Python/Flask API with OpenAI integration and RAG (Retrieval-Augmented Generation)
-- **Frontend**: Modern React TypeScript application with beautiful UI
-- **AI Features**: Intelligent responses using knowledge base and chat memory
-- **Production Ready**: Azure deployment, CI/CD pipelines, and comprehensive testing
-
-## Monorepo Structure
-
-```
-├── backend/           # Python Flask API
-│   ├── app/          # Application modules
-│   ├── knowledge_base/  # RAG knowledge files
-│   ├── tests/        # Backend tests
-│   └── requirements.txt
-├── frontend/         # React TypeScript UI
-│   ├── src/         # React components and services
-│   ├── public/      # Static assets
-│   └── package.json
-├── .github/workflows/  # CI/CD pipelines
-└── deployment/       # Deployment configurations
-```
-
 ## Features
 
-### Backend Features
+### 🔙 Backend
 - 🔐 JWT-based authentication
 - 🤖 OpenAI GPT integration with enhanced error handling
 - 📚 RAG with knowledge base (menu, FAQs, policies)
@@ -52,7 +30,7 @@ This application provides a complete chatbot solution with:
 - 🩺 Health checks and debug endpoints
 - 📊 Comprehensive logging for Azure troubleshooting
 
-### Frontend Features
+### 🎨 Frontend
 - ⚡ Vite + React + TypeScript
 - 🎨 Modern glassmorphism design with pure CSS
 - 📝 Markdown rendering for chat messages
@@ -62,171 +40,119 @@ This application provides a complete chatbot solution with:
 
 ## Tech Stack
 
-### Backend
-- **Runtime**: Python 3.10+
-- **Framework**: Flask 3.0+, SQLAlchemy 2.0+
-- **AI/LLM**: OpenAI GPT-3.5-turbo with RAG
-- **Auth**: JWT tokens (Flask-JWT-Extended)
-- **Database**: SQLite (development/Azure), PostgreSQL ready
-- **Testing**: pytest
-- **Deployment**: Gunicorn, Azure Web Apps
-
-### Frontend
-- **Framework**: React 19.1+ with TypeScript
-- **Build Tool**: Vite 7.0+
-- **Styling**: Pure CSS with modern design patterns
-- **HTTP Client**: Axios
-- **Markdown**: react-markdown with rehype-raw
-- **Icons**: Lucide React
-
-## Getting Started
-
-### Prerequisites
-
-- Python 3.10+
-- Node.js 18+
-- npm or yarn
-
-### Backend Setup
-
-1. Navigate to backend directory:
-```bash
-cd backend
-```
-
-2. Create virtual environment:
-```bash
-py -3.10 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-4. Set environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
-
-5. Initialize database:
-```bash
-flask db upgrade
-```
-
-6. Run tests:
-```bash
-# Run all tests
-pytest
-
-# Run with coverage report
-pytest --cov=app tests/
-
-# Run specific test file
-pytest tests/test_chat.py
-
-# Run with verbose output
-pytest -v
-```
-
-Test coverage includes:
-- Authentication flows
-- Chat functionality with mocked LLM
-- Menu operations
-- Knowledge base retrieval
-- Error cases and edge scenarios
-python init_db.py
-
-# If you need to recreate schema (after model changes):
-python recreate_db.py
-```
-
-6. Run the application:
-```bash
-python run.py
-```
-
-## API Endpoints
-
-### Authentication
-- `POST /users/register` - User registration
-- `POST /users/login` - User authentication
-- `GET /users/profile` - Get user profile (authenticated)
-
-### Chat
-- `POST /chat/` - Chat with the AI assistant (authenticated)
-- `GET /chat/sessions` - Get user's chat sessions (authenticated)
-
-### Orders
-- `GET /orders` - Get all user orders (authenticated)
-- `GET /orders/{id}` - Get specific order status (authenticated)
-- `GET /orders/{id}/tracking` - Get order tracking details (authenticated)
-- `POST /orders/{id}/issues` - Report order issue (authenticated)
-
-### System
-- `GET /health` - Health check endpoint
+| Component | Technology |
+|-----------|------------|
+| **Backend Runtime** | Python 3.10+ |
+| **Backend Framework** | Flask 3.0+, SQLAlchemy 2.0+ |
+| **AI/LLM** | OpenAI GPT-3.5-turbo with RAG |
+| **Authentication** | JWT tokens (Flask-JWT-Extended) |
+| **Database** | SQLite (dev/Azure), PostgreSQL ready |
+| **Frontend Framework** | React 19.1+ with TypeScript |
+| **Build Tool** | Vite 7.0+ |
+| **Styling** | Pure CSS with modern patterns |
+| **HTTP Client** | Axios |
+| **Testing** | pytest (backend) |
+| **Deployment** | Azure Web Apps + Static Web Apps |
 
 ## Project Structure
 
 ```
 ai-chatbot-perf-burger/
-├── app/                                    # Main application package
-│   ├── auth/                              # Authentication blueprint
-│   ├── chat/                              # Chat functionality
-│   ├── orders/                            # Order management
-│   ├── models/                            # Database models
-│   └── utils/                             # Utilities (LLM, knowledge base)
-├── tests/                                 # Test suite
-├── knowledge_base/                        # RAG knowledge base files
-│   ├── menu.json                         # Restaurant menu data
-│   ├── faqs.yaml                         # Frequently asked questions
-│   └── policies.json                     # Company policies
-├── deployment/                            # Deployment configurations
-│   └── k8s/                              # Kubernetes manifests
-├── instance/                              # Database files (gitignored)
-├── init_db.py                            # Database initialization script
-├── requirements.txt                      # Python dependencies
-├── Dockerfile                           # Container configuration
-├── .env.example                         # Environment variables template
-└── README.md                            # This file
+├── backend/                               # Python Flask API
+│   ├── app/                              # Application modules
+│   │   ├── auth/                         # Authentication blueprint
+│   │   ├── chat/                         # Chat functionality
+│   │   ├── orders/                       # Order management
+│   │   ├── models/                       # Database models
+│   │   └── utils/                        # Utilities (LLM, knowledge base)
+│   ├── tests/                            # Backend test suite
+│   ├── knowledge_base/                   # RAG knowledge base files
+│   │   ├── menu.json                     # Restaurant menu data
+│   │   ├── faqs.yaml                     # Frequently asked questions
+│   │   └── policies.json                 # Company policies
+│   ├── instance/                         # Database files (gitignored)
+│   ├── requirements.txt                  # Python dependencies
+│   └── run.py                           # Application entry point
+├── frontend/                             # React TypeScript UI
+│   ├── src/                             # React components and services
+│   ├── public/                          # Static assets
+│   └── package.json                     # Node.js dependencies
+├── .github/workflows/                    # CI/CD pipelines
+├── FRONTEND_DEPLOYMENT.md               # Frontend deployment guide
+├── User-Stories.md                      # User stories and requirements
+└── README.md                           # This file
 ```
 
-## Development
+## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.10+
+- Node.js 18+
+- OpenAI API key (optional, for AI features)
+
+### Backend Setup
+
+```bash
+# Navigate to backend directory
+cd backend
+
+# Create and activate virtual environment
+py -3.10 -m venv venv
+# Windows: venv\Scripts\activate
+# Linux/Mac: source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your settings
+
+# Initialize database
+python init_db.py
+
+# Run the application
+python run.py
+```
+
+### Frontend Setup
+
+```bash
+# Navigate to frontend directory
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
 
 ### Running Tests
 
 ```bash
+# Backend tests
+cd backend
 pytest
+
+# With coverage
+pytest --cov=app tests/
 ```
 
-### Code Style
+## API Reference
 
-```bash
-black app/
-flake8 app/
-```
+### Current Active Endpoints
 
-## Troubleshooting
-
-### Common Issues
-
-**404 Error on API endpoints**
-- Ensure the server is running: `python run.py`
-- Check that blueprint routes are properly imported in `app/*/__init__.py` files
-
-**Database errors**
-- Run database initialization: `python init_db.py`
-- Check `.env` file configuration
-
-**JWT Authentication errors**
-- Verify JWT_SECRET_KEY is set in `.env`
-- Check that Authorization header format is: `Bearer <token>`
-
-**Knowledge base not loading**
-- Ensure knowledge base files exist in `knowledge_base/` directory
-- Check file permissions and JSON/YAML syntax
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/health` | Health check | No |
+| `POST` | `/users/register` | User registration | No |
+| `POST` | `/users/login` | User authentication | No |
+| `POST` | `/chat/` | Chat with AI assistant | Yes |
+| `POST` | `/orders/` | Create order from chat | Yes |
+| `GET` | `/orders/lookup/<id>` | Lookup order by ID | Yes |
+| `GET` | `/debug/llm-status` | Check LLM configuration | No |
+| `GET` | `/debug/environment` | Environment info | No |
 
 ## Environment Configuration
 
@@ -241,138 +167,72 @@ JWT_SECRET_KEY=your-jwt-secret-key
 # Database
 DATABASE_URL=sqlite:///instance/chatbot.db
 
-# OpenAI (optional)
+# OpenAI (optional for AI features)
 OPENAI_API_KEY=your-openai-api-key
 
 # Knowledge Base
 KNOWLEDGE_BASE_PATH=knowledge_base/
 ```
 
-## CI/CD and Deployment
+## Deployment
 
-### CI/CD Pipeline
+### Cloud Infrastructure
+- **Backend**: Azure App Service (Python Web App)
+- **Frontend**: Azure Static Web Apps
+- **Database**: SQLite (development/testing)
+- **CI/CD**: GitHub Actions
+- **Monitoring**: Azure Application Insights
 
-Our GitHub Actions workflows automate:
+### Deployment Guides
+- **Frontend**: See [FRONTEND_DEPLOYMENT.md](./FRONTEND_DEPLOYMENT.md) for detailed Azure Static Web Apps setup
+- **Backend**: Automatically deployed via GitHub Actions to Azure App Service
 
-Backend (`.github/workflows/backend.yml`):
-1. Code checkout
-2. Python setup and dependencies installation
-3. Linting and testing
-4. Deployment to Azure App Service
-
-Frontend (`.github/workflows/azure-static-web-apps.yml`):
-1. Code checkout
-2. Node.js setup and dependencies installation
-3. Build process
-4. Deployment to Azure Static Web Apps
-
-### Cloud Deployment
-
-The application is deployed on Azure using:
-- Backend: Azure App Service (Python Web App)
-- Frontend: Azure Static Web Apps
-- Database: SQLite (development/testing)
-- Monitoring: Azure Application Insights
-
-### Deployment Configuration
-
-1. Backend deployment:
-The backend is deployed as a Python Web App on Azure App Service, which automatically handles:
-- Python runtime environment
-- Dependencies installation from requirements.txt
-- WSGI server configuration
-- Environment variables management
-- SSL/TLS certificates
-- Custom domain configuration (if needed)
-
-2. Frontend deployment:
-The frontend is deployed using Azure Static Web Apps, which provides:
-```yaml
-# .github/workflows/azure-static-web-apps.yml
-name: Frontend CI/CD
-on:
-  push:
-    branches:
-      - main
-jobs:
-  build_and_deploy:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: Azure/static-web-apps-deploy@v1
-      with:
-        azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_TOKEN }}
-        # Build configuration
-        app_location: "/frontend"    # Location of your frontend code
-        api_location: ""             # If using Static Web Apps API
-        output_location: "dist"      # Build output directory
-```
-
-### Environment Variables
-
+### Environment Variables (Production)
 Production environment variables are managed through Azure App Service Configuration:
 
 ```bash
-# Azure App Service Configuration
 FLASK_ENV=production
-DATABASE_URL=postgresql://user:pass@perfburger-db.postgres.database.azure.com/chatbot
+DATABASE_URL=sqlite:///instance/chatbot.db  # or PostgreSQL for scale
 OPENAI_API_KEY=sk-...
 JWT_SECRET_KEY=production-key
 CORS_ORIGINS=https://delightful-ground-0a878f803.azurestaticapps.net
 ```
 
-### Monitoring and Observability
+## Troubleshooting
 
-1. Health Check Endpoint: `GET /health`
-2. Azure Application Insights integration
-3. Structured logging with correlation IDs
-4. Performance metrics dashboard
+### Common Issues
 
-## Bonus Features Implemented
+| Issue | Solution |
+|-------|----------|
+| **404 on API endpoints** | Ensure server is running: `python run.py` |
+| **Database errors** | Run: `python init_db.py` |
+| **JWT errors** | Check `JWT_SECRET_KEY` in `.env` |
+| **Knowledge base not loading** | Verify files exist in `knowledge_base/` |
+| **Frontend build fails** | Check Node.js version (18+) |
+| **API calls fail** | Verify backend CORS configuration |
 
-1. **Enhanced Frontend**:
-   - React-based chat widget
-   - Real-time message updates
-   - Markdown support
-   - Responsive design
+## Testing
 
-2. **Observability**:
-   - Health check endpoint
-   - Azure Application Insights
-   - Structured logging
-   - Performance monitoring
+### Test Coverage Includes:
+- ✅ Authentication flows
+- ✅ Chat functionality with mocked LLM
+- ✅ Order creation and lookup
+- ✅ Knowledge base retrieval
+- ✅ Error cases and edge scenarios
 
-3. **Security**:
-   - JWT authentication
-   - CORS configuration
-   - Rate limiting
-   - Input validation
-
-### 🚀 Live Demo
-The PerfBurger AI Chatbot is live on Azure:
-- **URL**: https://perfburger-chatbot-a6eph3fsavbwc5bm.westeurope-01.azurewebsites.net
-- **Health Check**: https://perfburger-chatbot-a6eph3fsavbwc5bm.westeurope-01.azurewebsites.net/health
-
-### Azure Web App
-Deployed using Azure Web App with automatic deployment from GitHub. Every push to `main` branch automatically updates the live application.
-
-### Deployment Options
-See the `deployment/` directory for additional deployment configurations and scripts.
-
-### Frontend Deployment
-For detailed frontend deployment instructions, see [FRONTEND_DEPLOYMENT.md](./FRONTEND_DEPLOYMENT.md) which covers:
-- Azure Static Web Apps setup
-- GitHub Actions integration
-- Environment configuration
-- CORS setup
-- Troubleshooting common deployment issues
+### API Testing Options:
+1. **Postman Collection**: `PerfBurger_API_Collection.postman_collection.json`
+2. **Backend Unit Tests**: `pytest` in `/backend`
+3. **Frontend Integration**: Use the deployed frontend app
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
-4. Add tests
-5. Submit a pull request
+4. Add tests for new functionality
+5. Ensure all tests pass (`pytest`)
+6. Submit a pull request
 
 ## License
 
